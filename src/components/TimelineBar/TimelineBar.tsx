@@ -13,7 +13,7 @@ export function TimelineBar({
       <div
         data-testid="bar"
         data-active={active}
-        className={`absolute inset-y-0 rounded-bar ${active ? 'bg-accent' : 'bg-chip'}`}
+        className={`absolute inset-y-0 rounded-bar ${active ? 'bg-accent' : 'bg-muted'}`}
         style={{ left: `${left}%`, width: `${width}%` }}
       />
     </div>

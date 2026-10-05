@@ -1,4 +1,7 @@
 dist
+playwright-report
+test-results
+.lighthouseci
 coverage
 pnpm-lock.yaml
 docs

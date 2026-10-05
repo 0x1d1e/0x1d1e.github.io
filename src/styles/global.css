@@ -1,0 +1,16 @@
+@import 'tailwindcss';
+@import './theme.css';
+
+@layer base {
+  html {
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-optical-sizing: auto; /* opsz axis gives Inter its Display cut at large sizes */
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}

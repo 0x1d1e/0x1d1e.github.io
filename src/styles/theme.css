@@ -1,0 +1,35 @@
+/* Single source of truth for design tokens. Only these colors may exist. */
+@theme {
+  --color-*: initial;
+  --color-bg: #000;
+  --color-card: #0a0a0a;
+  --color-chip: #1f1f1f;
+  --color-ring: rgba(255, 255, 255, 0.145);
+  --color-text: #fff;
+  --color-text-soft: #e7e7e7;
+  --color-muted: #999;
+  --color-text-alt: #ededed;
+  --color-cta-text: #121212;
+  --color-accent: #52a8ff;
+  --color-success: #62c073;
+
+  --radius-*: initial;
+  --radius-btn: 0;
+  --radius-chip: 100px;
+  --radius-bar: 2px;
+
+  --font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
+
+  --text-headline: clamp(2rem, 1.2rem + 3.6vw, 3.75rem);
+  --text-headline--line-height: 1.05;
+  --text-headline--letter-spacing: -0.03em;
+}
+
+@utility scrim {
+  background-image: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.76) 0%,
+    rgba(0, 0, 0, 0) 93.785%
+  );
+}

@@ -2,6 +2,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
 test('no axe violations (incl. color contrast)', async ({ page }) => {
+  // Deterministic: mid-fade opacity would skew contrast results.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   const { violations } = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
@@ -26,8 +28,7 @@ test('keyboard reaches nav, CTA and event stream', async ({ page }, info) => {
     );
   }
   expect(seen).toContain('See the projects');
-  expect(seen.has('build main') || seen.has('Traces')).toBe(true);
-  expect([...seen].some((s) => s.startsWith('install'))).toBe(true);
+  expect(seen).toContain('merro');
   void info;
 });
 

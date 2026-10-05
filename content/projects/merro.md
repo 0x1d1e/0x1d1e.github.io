@@ -1,8 +1,8 @@
 ---
 name: merro
-summary: Summary pending.
+summary: Multi-agent coding orchestrator for Pi. Backlog to reviewed, merged PRs, with sandboxed workers.
 status: experimental
 repo: https://github.com/0x1d1e/merro
-tags: [wip]
-updated: 2026-10-05
+tags: [typescript, agents, coding]
+updated: 2026-10-04
 ---

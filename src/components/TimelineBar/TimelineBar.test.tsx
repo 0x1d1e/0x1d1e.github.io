@@ -6,7 +6,7 @@ test('positions by percentage', () => {
   render(<TimelineBar left={10} width={40} />);
   const bar = screen.getByTestId('bar');
   expect(bar).toHaveStyle({ left: '10%', width: '40%' });
-  expect(bar).toHaveClass('bg-chip');
+  expect(bar).toHaveClass('bg-muted');
 });
 
 test('active uses accent', () => {

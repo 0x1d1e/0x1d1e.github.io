@@ -1,5 +1,8 @@
 import { Button } from '../Button/Button';
+import { PixelWordmark } from '../PixelWordmark/PixelWordmark';
+import { Cursor } from '../Cursor/Cursor';
 import { Reveal } from '../../motion/Reveal';
+import { useTypewriter } from '../../motion/useTypewriter';
 import { AgentLoop } from './AgentLoop';
 
 export type HeroProps = {
@@ -9,22 +12,26 @@ export type HeroProps = {
 };
 
 export function Hero({ headline, subtext, cta }: HeroProps) {
+  const s = useTypewriter(subtext, { delay: 900, speed: 35 });
+
   return (
     <section
       aria-labelledby="hero-title"
-      className="relative flex min-h-svh items-end overflow-hidden bg-bg"
+      className="relative flex min-h-svh items-end overflow-hidden"
     >
       <div aria-hidden="true" className="scrim absolute inset-0" />
       <div className="relative z-10 grid w-full items-end gap-12 px-6 pb-16 md:px-14 md:pb-24 lg:grid-cols-2">
         <div className="flex max-w-3xl flex-col gap-6">
-          <Reveal>
-            <h1 id="hero-title" className="font-display text-headline">
-              {headline}
-            </h1>
-          </Reveal>
-          <Reveal delay={0.06}>
-            <p className="font-mono text-sm text-muted">{subtext}</p>
-          </Reveal>
+          <h1 id="hero-title" className="font-display text-headline">
+            <PixelWordmark text={headline} />
+          </h1>
+          <p className="font-mono text-sm text-muted">
+            <span className="sr-only">{subtext}</span>
+            <span aria-hidden="true">
+              {s.typed}
+              <Cursor />
+            </span>
+          </p>
           <Reveal delay={0.12}>
             <Button href={cta.href} arrow>
               {cta.label}

@@ -10,7 +10,7 @@ function ArrowIcon() {
     <svg
       aria-hidden="true"
       viewBox="0 0 16 16"
-      className="size-4"
+      className="size-4 transition-transform duration-150 group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.5"
@@ -29,7 +29,7 @@ export function Button({
 }: Props) {
   return (
     <a
-      className={`inline-flex items-center gap-2 rounded-btn bg-text px-5 py-3 font-display text-sm font-medium text-cta-text transition-colors duration-150 hover:bg-text-alt ${className}`}
+      className={`group/btn inline-flex items-center gap-2 rounded-btn bg-text px-5 py-3 font-display text-sm font-medium text-cta-text transition-colors duration-150 hover:bg-text-alt active:scale-[0.98] ${className}`}
       {...rest}
     >
       {children}

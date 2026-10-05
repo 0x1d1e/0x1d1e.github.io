@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { AppLink } from '../AppLink/AppLink';
 import type { NavLink } from './Header';
 
 const FOCUSABLE = 'a[href], button:not([disabled])';
@@ -61,14 +62,14 @@ export function MobileMenu({ id, links, onClose }: Props) {
       </button>
       <nav aria-label="Mobile" className="mt-16 flex flex-col gap-6">
         {links.map((l) => (
-          <a
+          <AppLink
             key={l.href}
             href={l.href}
             onClick={onClose}
             className="font-display text-headline"
           >
             {l.label}
-          </a>
+          </AppLink>
         ))}
       </nav>
     </div>

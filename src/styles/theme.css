@@ -24,6 +24,20 @@
   --text-headline: clamp(2rem, 1.2rem + 3.6vw, 3.75rem);
   --text-headline--line-height: 1.05;
   --text-headline--letter-spacing: -0.03em;
+
+  --animate-blink: blink 1.06s step-end infinite;
+  --animate-marquee: marquee 32s linear infinite;
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
 
 @utility scrim {

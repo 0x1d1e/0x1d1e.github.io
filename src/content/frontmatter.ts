@@ -11,7 +11,10 @@ export function parseFrontmatter(raw: string): {
     const i = line.indexOf(':');
     if (i < 1) throw new Error(`bad frontmatter line: ${line}`);
     const key = line.slice(0, i).trim();
-    const val = line.slice(i + 1).trim();
+    const val = line
+      .slice(i + 1)
+      .trim()
+      .replace(/^(['"])(.*)\1$/, '$2');
     data[key] =
       val.startsWith('[') && val.endsWith(']')
         ? val

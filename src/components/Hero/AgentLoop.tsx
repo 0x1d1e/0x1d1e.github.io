@@ -10,13 +10,16 @@ const LINES = [
   { k: 'merge', v: 'PR merged', done: true },
 ];
 
-const STEP_MS = 900;
+const SPINNER = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+const STEP_MS = 1100;
 const HOLD_MS = 2800;
 
 /** Decorative looping terminal. Static (all lines) under reduced motion. */
 export function AgentLoop() {
   const reduce = useReducedMotion();
+  // n = lines finished; line n is "running" with a spinner.
   const [n, setN] = useState(0);
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     if (reduce) return;
@@ -27,25 +30,45 @@ export function AgentLoop() {
     return () => clearTimeout(t);
   }, [n, reduce]);
 
-  const shown = reduce ? LINES.length : n;
+  useEffect(() => {
+    if (reduce) return;
+    const id = setInterval(() => setTick((c) => c + 1), 80);
+    return () => clearInterval(id);
+  }, [reduce]);
+
+  const finished = reduce ? LINES.length : n;
+  const running = !reduce && n < LINES.length ? LINES[n] : undefined;
 
   return (
     <figure
       aria-label="Illustration of an agent loop: backlog, worker, review, merge"
-      className="w-full max-w-md bg-card p-5 font-mono text-xs ring-1 ring-ring"
+      className="w-full max-w-md bg-card p-5 font-mono text-xs ring-1 ring-ring transition-colors duration-300 hover:ring-accent"
     >
       <div aria-hidden="true">
-        <p className="text-muted">$ merro run</p>
-        <ul className="mt-3 flex min-h-28 flex-col gap-1.5">
-          {LINES.slice(0, shown).map((l, i) => (
+        <p className="text-muted">
+          $ merro run
+          <span className="ml-1 inline-block h-3 w-1.5 animate-blink bg-accent align-middle" />
+        </p>
+        <ul className="mt-3 flex min-h-36 flex-col gap-1.5">
+          {LINES.slice(0, finished).map((l, i) => (
             <li
               key={i}
               className={`flex gap-3 ${l.done ? 'text-success' : 'text-text-soft'}`}
             >
+              <span className="w-4 shrink-0 text-success">✓</span>
               <span className="w-16 shrink-0 text-muted">{l.k}</span>
               {l.v}
             </li>
           ))}
+          {running && (
+            <li className="flex gap-3 text-accent">
+              <span className="w-4 shrink-0">
+                {SPINNER[tick % SPINNER.length]}
+              </span>
+              <span className="w-16 shrink-0">{running.k}</span>
+              working
+            </li>
+          )}
         </ul>
       </div>
       <figcaption className="mt-4 text-muted">

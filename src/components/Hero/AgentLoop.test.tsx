@@ -12,11 +12,14 @@ function step(times: number, ms: number) {
 test('types lines out over time and loops', () => {
   vi.useFakeTimers();
   const { container } = render(<AgentLoop />);
-  const count = () => container.querySelectorAll('li').length;
+  const count = () =>
+    [...container.querySelectorAll('li')].filter((l) =>
+      l.textContent?.startsWith('✓'),
+    ).length;
   expect(count()).toBe(0);
-  step(2, 900);
+  step(2, 1100);
   expect(count()).toBe(2);
-  step(3, 900);
+  step(3, 1100);
   expect(count()).toBe(5);
   step(1, 2800);
   expect(count()).toBe(0);

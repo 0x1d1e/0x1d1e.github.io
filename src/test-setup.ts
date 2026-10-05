@@ -25,3 +25,16 @@ window.matchMedia ??= ((q: string) => ({
   dispatchEvent: () => false,
   onchange: null,
 })) as unknown as typeof window.matchMedia;
+
+// jsdom has no canvas; PixelField bails out when there is no 2d context.
+HTMLCanvasElement.prototype.getContext = (() => null) as never;
+
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+} as unknown as typeof ResizeObserver;
+Object.defineProperty(document, 'fonts', {
+  value: { load: () => Promise.resolve([]) },
+  configurable: true,
+});

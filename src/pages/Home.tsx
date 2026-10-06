@@ -36,6 +36,7 @@ const pages: StagePage[] = [
   {
     id: 'build',
     label: 'What we build',
+    command: 'cd ./what-we-build',
     node: (
       <Chapter
         id="build"
@@ -58,6 +59,7 @@ const pages: StagePage[] = [
   {
     id: 'research',
     label: 'AI research',
+    command: 'cat ai-research.md',
     node: (
       <Chapter
         id="research"
@@ -71,10 +73,16 @@ const pages: StagePage[] = [
       />
     ),
   },
-  { id: 'principles', label: 'How we work', node: <Principles /> },
+  {
+    id: 'principles',
+    label: 'How we work',
+    command: 'less PRINCIPLES.md',
+    node: <Principles />,
+  },
   {
     id: 'next',
     label: 'Join in',
+    command: 'git clone 0x1d1e/you',
     node: (
       <section
         aria-labelledby="next-title"

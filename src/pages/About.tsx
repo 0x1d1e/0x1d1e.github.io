@@ -54,6 +54,7 @@ const pages: StagePage[] = [
   {
     id: 'why',
     label: 'Why',
+    command: 'cat why.txt',
     node: (
       <section
         aria-labelledby="why-title"
@@ -76,10 +77,16 @@ const pages: StagePage[] = [
       </section>
     ),
   },
-  { id: 'principles', label: 'How we work', node: <Principles /> },
+  {
+    id: 'principles',
+    label: 'How we work',
+    command: 'less PRINCIPLES.md',
+    node: <Principles />,
+  },
   {
     id: 'status',
     label: 'Status',
+    command: 'cat STATUS',
     node: (
       <section
         aria-labelledby="status-title"

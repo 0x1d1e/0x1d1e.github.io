@@ -80,3 +80,48 @@ test('projects filter by topic', async ({ page }) => {
     page.getByRole('link', { name: 'merro', exact: true }),
   ).toHaveCount(0);
 });
+
+// The browser normalises inset(0 0 0 0) to inset(0px).
+const UNWIPED = /^inset\(0(px)?( 0(px)?){0,3}\)$/;
+
+test('moving to the next page types a command first, then wipes', async ({
+  page,
+}, info) => {
+  test.skip(info.project.name !== 'desktop', 'stage is desktop-only');
+  await page.goto('/');
+  const h = await page.evaluate(() => window.innerHeight);
+  const prompt = page.getByTestId('stage-prompt');
+  const text = async () =>
+    ((await prompt.textContent()) ?? '').replace(/\s+/g, ' ');
+  const at = (frac: number) =>
+    page.evaluate(([y]) => window.scrollTo(0, y!), [h * frac]);
+
+  // Hold zone: no prompt.
+  await at(0.1);
+  await expect
+    .poll(async () =>
+      Number(await prompt.evaluate((e) => getComputedStyle(e).opacity)),
+    )
+    .toBe(0);
+
+  // Early in the transition: the command is partly typed and the page is not wiped yet.
+  await at(0.35);
+  await expect.poll(text).toMatch(/^\$ c/);
+  expect(await text()).not.toContain('what-we-build');
+  expect(
+    await page.locator('#intro').evaluate((e) => getComputedStyle(e).clipPath),
+  ).toMatch(UNWIPED);
+
+  // Typing done, wipe under way.
+  await at(0.62);
+  await expect.poll(text).toContain('cd ./what-we-build');
+  await expect
+    .poll(async () =>
+      page.locator('#intro').evaluate((e) => getComputedStyle(e).clipPath),
+    )
+    .not.toMatch(UNWIPED);
+
+  // Scrolling back un-types it.
+  await at(0.35);
+  await expect.poll(text).not.toContain('what-we-build');
+});

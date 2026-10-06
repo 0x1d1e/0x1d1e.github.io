@@ -5,7 +5,7 @@ source: https://github.com/0x1d1e/kanade/blob/main/README.md
 ---
 A top-center Dynamic Island for niri, built with [Amane](https://github.com/MystiaFin/amane).
 
-[Watch the concept video](https://github.com/user-attachments/assets/27e6837e-8cf1-4faa-8815-e5b14cdd631b)
+![Concept video: the island expanding into a music player.](videos/kanade-concept.mp4)
 
 AI-generated concept, not a capture of the current build.
 

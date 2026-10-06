@@ -45,6 +45,33 @@ test('remote images are not loaded', () => {
   expect(container.querySelector('img')).toBeNull();
 });
 
+test('local videos play in place with a poster, controls and no preload', () => {
+  const { container } = md('![Demo clip](videos/demo.mp4)');
+  const v = container.querySelector('video')!;
+  expect(v).toHaveAttribute('controls');
+  expect(v).toHaveAttribute('preload', 'none');
+  expect(v).toHaveAttribute('poster', '/videos/demo.jpg');
+  expect(v).toHaveAttribute('aria-label', 'Demo clip');
+  expect(container.querySelector('source')).toHaveAttribute(
+    'src',
+    '/videos/demo.mp4',
+  );
+  expect(container.querySelector('track')).toHaveAttribute('kind', 'captions');
+  expect(container.querySelector('track')).toHaveAttribute(
+    'src',
+    '/videos/demo.en.vtt',
+  );
+  expect(screen.getByText('Demo clip')).toBeInTheDocument();
+  expect(
+    screen.getByRole('link', { name: 'Download the video' }),
+  ).toHaveAttribute('href', '/videos/demo.mp4');
+});
+
+test('remote videos are not loaded either', () => {
+  const { container } = md('![clip](https://example.com/x.mp4)');
+  expect(container.querySelector('video')).toBeNull();
+});
+
 test('code blocks can be copied', async () => {
   const user = userEvent.setup();
   const writeText = vi

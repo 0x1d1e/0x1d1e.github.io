@@ -5,7 +5,7 @@ source: https://github.com/0x1d1e/kanade/blob/main/README.md
 ---
 A top-center Dynamic Island for niri, built with [Amane](https://github.com/MystiaFin/amane).
 
-https://github.com/user-attachments/assets/27e6837e-8cf1-4faa-8815-e5b14cdd631b
+[Watch the concept video](https://github.com/user-attachments/assets/27e6837e-8cf1-4faa-8815-e5b14cdd631b)
 
 AI-generated concept, not a capture of the current build.
 

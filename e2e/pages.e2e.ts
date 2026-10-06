@@ -42,17 +42,18 @@ test('side pager jumps between pages and tracks the current one', async ({
     'aria-current',
     'true',
   );
-  await pager.getByRole('link', { name: 'Merro' }).click();
-  await expect(pager.getByRole('link', { name: 'Merro' })).toHaveAttribute(
-    'aria-current',
-    'true',
-  );
+  await pager.getByRole('link', { name: 'Agents and automation' }).click();
   await expect(
-    page.getByRole('heading', { name: 'Backlog to merged PR.' }),
+    pager.getByRole('link', { name: 'Agents and automation' }),
+  ).toHaveAttribute('aria-current', 'true');
+  await expect(
+    page.getByRole('heading', {
+      name: 'Agents that ship. Humans that approve.',
+    }),
   ).toHaveCSS('opacity', '1');
 });
 
-test('the pages turn: the outgoing page fades and tilts mid-scroll', async ({
+test('the stage scans: mid-scroll the outgoing page is partly clipped and a scan line shows', async ({
   page,
 }, info) => {
   test.skip(info.project.name !== 'desktop', 'stage is desktop-only');
@@ -61,11 +62,21 @@ test('the pages turn: the outgoing page fades and tilts mid-scroll', async ({
   await page.evaluate((h) => window.scrollTo(0, h * 0.5), h);
   const intro = page.locator('#intro');
   await expect
-    .poll(async () =>
-      Number(await intro.evaluate((e) => getComputedStyle(e).opacity)),
-    )
-    .toBeLessThan(0.6);
-  expect(await intro.evaluate((e) => getComputedStyle(e).transform)).not.toBe(
-    'none',
-  );
+    .poll(async () => intro.evaluate((e) => getComputedStyle(e).clipPath))
+    .toMatch(/inset\((?!0px 0px 0px 0px)/);
+});
+
+test('project pages show their illustration', async ({ page }) => {
+  await page.goto('/projects/kinetix');
+  await expect(page.getByRole('img', { name: /gateway/ })).toBeVisible();
+});
+
+test('projects filter by topic', async ({ page }) => {
+  await page.goto('/projects?topic=desktop');
+  await expect(
+    page.getByRole('link', { name: 'kanade', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'merro', exact: true }),
+  ).toHaveCount(0);
 });

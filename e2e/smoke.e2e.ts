@@ -7,9 +7,9 @@ test('renders every section', async ({ page }) => {
   ).toBeVisible();
   // Pages overlap on the desktop stage, so check presence rather than visibility.
   for (const name of [
-    'LLM traffic, in motion.',
-    'Backlog to merged PR.',
-    'A Dynamic Island for niri.',
+    'Between your agents and the models.',
+    'Agents that ship. Humans that approve.',
+    'Software that stays out of the way.',
     'How we work',
   ])
     await expect(page.getByRole('heading', { name })).toBeAttached();

@@ -1,40 +1,43 @@
 import type { ReactNode } from 'react';
 import { Button } from '../Button/Button';
 
-/** One project, one page: what it is on the left, how it works on the right. */
+/** One kind of work: what it is on the left, how it works on the right. */
 export function Chapter({
   index,
-  project,
+  topic,
+  name,
   title,
   blurb,
   tags,
   visual,
 }: {
   index: string;
-  project: string;
+  /** topic id, used for the filtered projects link */
+  topic: string;
+  name: string;
   title: string;
   blurb: string;
-  tags: string[];
+  tags: readonly string[];
   visual: ReactNode;
 }) {
   return (
     <section
-      aria-labelledby={`${project}-title`}
+      aria-labelledby={`${topic}-title`}
       className="grid w-full items-center gap-10 px-6 py-24 md:px-14 lg:grid-cols-2 lg:gap-16 lg:py-0"
     >
       <div>
         <p aria-hidden="true" className="mb-3 font-mono text-xs text-muted">
-          {index} / {project}
+          {index} / {name.toLowerCase()}
         </p>
         <h2
-          id={`${project}-title`}
+          id={`${topic}-title`}
           className="max-w-xl font-display text-headline"
         >
           {title}
         </h2>
         <p className="mt-6 max-w-lg leading-7 text-text-soft">{blurb}</p>
         <ul
-          aria-label={`${project} topics`}
+          aria-label={`${name} topics`}
           className="mt-6 flex flex-wrap gap-2 font-mono text-xs"
         >
           {tags.map((t) => (
@@ -47,8 +50,8 @@ export function Chapter({
           ))}
         </ul>
         <div className="mt-8">
-          <Button href={`/projects/${project}`} arrow>
-            About {project}
+          <Button href={`/projects?topic=${topic}`} arrow>
+            Projects in {name}
           </Button>
         </div>
       </div>

@@ -15,8 +15,8 @@ export type StagePage = { id: string; label: string; node: ReactNode };
 
 const REST = 0.2; // fraction of each page's scroll range spent holding still
 const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
-/** 0 while resting, 1 when fully turned away; d = page offset from the camera. */
-const turn = (d: number) => clamp((Math.abs(d) - REST) / (1 - 2 * REST));
+/** Progress (0..1) of the scan that moves the stage from page k to page k+1, given t = page position. */
+const scan = (t: number, k: number) => clamp((t - k - REST) / (1 - 2 * REST));
 
 function useWide() {
   const [on, setOn] = useState(false);
@@ -45,15 +45,27 @@ function DeckPage({
   page: StagePage;
   jump: (i: number, smooth: boolean) => void;
 }) {
-  const d = useTransform(p, (v) => v * (n - 1) - i);
-  // Outgoing pages swing away left on a left hinge; incoming ones arrive from the right.
-  const x = useTransform(d, (v) => `${(v > 0 ? -1 : 1) * turn(v) * 18}vw`);
-  const rotateY = useTransform(d, (v) => (v > 0 ? 1 : -1) * turn(v) * 55);
-  const scale = useTransform(d, (v) => 1 - turn(v) * 0.15);
-  const opacity = useTransform(d, (v) => clamp(1 - turn(v) * 1.35));
-  const filter = useTransform(d, (v) => `blur(${(turn(v) * 7).toFixed(1)}px)`);
-  const transformOrigin = useTransform(d, (v) =>
-    v > 0 ? '0% 50%' : '100% 50%',
+  // A scan line sweeps down the screen: the new page is revealed above it,
+  // the old one is left below it, drifting down a little as it is covered.
+  const enter = useTransform(p, (v) =>
+    i === 0 ? 1 : scan(v * (n - 1), i - 1),
+  );
+  const leave = useTransform(p, (v) =>
+    i === n - 1 ? 0 : scan(v * (n - 1), i),
+  );
+  const clipPath = useTransform([enter, leave], ([e = 1, l = 0]: number[]) =>
+    e < 1
+      ? `inset(0 0 ${(1 - e) * 100}% 0)`
+      : l > 0
+        ? `inset(${l * 100}% 0 0 0)`
+        : 'inset(0 0 0 0)',
+  );
+  const y = useTransform(
+    [enter, leave],
+    ([e = 1, l = 0]: number[]) => `${(1 - e) * -6 + l * 6}vh`,
+  );
+  const opacity = useTransform([enter, leave], ([e = 1, l = 0]: number[]) =>
+    clamp(0.35 + 0.65 * e - 0.55 * l),
   );
 
   return (
@@ -65,12 +77,9 @@ function DeckPage({
         onFocusCapture={() => active !== i && jump(i, false)}
         className="absolute inset-0 flex items-center"
         style={{
-          x,
-          rotateY,
-          scale,
+          clipPath,
+          y,
           opacity,
-          filter,
-          transformOrigin,
           zIndex: active === i ? 2 : 1,
           pointerEvents: active === i ? 'auto' : 'none',
         }}
@@ -94,9 +103,23 @@ function Deck({ pages }: { pages: StagePage[] }) {
     mass: 0.4,
   });
   const [active, setActive] = useState(0);
-  useMotionValueEvent(p, 'change', (v) =>
-    setActive(clamp(Math.round(v * (n - 1)), 0, n - 1)),
+  const [next, setNext] = useState(1);
+  useMotionValueEvent(p, 'change', (v) => {
+    const t = v * (n - 1);
+    setActive(clamp(Math.round(t), 0, n - 1));
+    setNext(clamp(Math.floor(t) + 1, 1, n - 1));
+  });
+  // Where the scan line is, and whether a scan is under way.
+  const lineTop = useTransform(
+    p,
+    (v) =>
+      `${scan(v * (n - 1), Math.min(Math.floor(v * (n - 1)), n - 2)) * 100}%`,
   );
+  const lineOn = useTransform(p, (v) => {
+    const t = v * (n - 1);
+    const a = scan(t, Math.min(Math.floor(t), n - 2));
+    return a > 0 && a < 1 ? 1 : 0;
+  });
 
   function jump(i: number, smooth: boolean) {
     const top =
@@ -124,6 +147,15 @@ function Deck({ pages }: { pages: StagePage[] }) {
             jump={jump}
           />
         ))}
+        <motion.div
+          aria-hidden="true"
+          style={{ top: lineTop, opacity: lineOn }}
+          className="pointer-events-none absolute inset-x-0 z-30 h-px bg-accent shadow-[0_0_24px_1px_var(--color-accent)]"
+        >
+          <span className="absolute bottom-1 left-6 bg-bg px-2 py-0.5 font-mono text-xs text-accent md:left-14">
+            {String(next).padStart(2, '0')} / {pages[next]?.label}
+          </span>
+        </motion.div>
         <PageDots items={pages} active={active} onJump={(i) => jump(i, true)} />
       </div>
     </div>
@@ -131,8 +163,8 @@ function Deck({ pages }: { pages: StagePage[] }) {
 }
 
 /**
- * Full-screen pages driven by scroll: each one turns away like a book page
- * (hinge, slide, blur) as the next turns in. Small screens and reduced
+ * Full-screen pages driven by scroll: a scan line sweeps down the screen,
+ * revealing the next page above it and leaving the old one below. Small screens and reduced
  * motion get the same pages as a plain scrolling column.
  */
 export function Stage({ pages }: { pages: StagePage[] }) {

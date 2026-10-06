@@ -13,11 +13,11 @@ test('is labeled as a concept, not a capture', () => {
 test('expands, lists apps, then collapses', () => {
   vi.useFakeTimers();
   render(<IslandDemo />);
-  expect(screen.getByText('kanade')).toBeInTheDocument();
+  expect(screen.getByText('island')).toBeInTheDocument();
   act(() => void vi.advanceTimersByTime(2200));
   expect(screen.getByText('Finding apps…')).toBeInTheDocument();
   act(() => void vi.advanceTimersByTime(1500));
   expect(screen.getByText('Terminal')).toBeInTheDocument();
   act(() => void vi.advanceTimersByTime(2600));
-  expect(screen.getByText('kanade')).toBeInTheDocument();
+  expect(screen.getByText('island')).toBeInTheDocument();
 });

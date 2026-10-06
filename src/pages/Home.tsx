@@ -1,6 +1,8 @@
+import type { ReactNode } from 'react';
 import { Button } from '../components/Button/Button';
 import { Chapter } from '../components/Chapter/Chapter';
 import { Hero } from '../components/Hero/Hero';
+import { topics, type TopicId } from '../content/topics';
 import { IslandDemo } from '../components/IslandDemo/IslandDemo';
 import { Marquee } from '../components/Marquee/Marquee';
 import { PipelineAgents } from '../components/PipelineAgents/PipelineAgents';
@@ -16,7 +18,14 @@ const values = [
   'no roadmap theater',
 ];
 
-// One story, in order: who we are, what we build (one page each), how we work, how to join in.
+// What each kind of work looks like. Illustrations are generic; individual projects have their own pages.
+const visualFor: Record<TopicId, ReactNode> = {
+  ai: <RouteGraph />,
+  agents: <PipelineAgents />,
+  desktop: <IslandDemo />,
+};
+
+// One story, in order: who we are, what kind of work we do, how we work, how to join in.
 const pages: StagePage[] = [
   {
     id: 'intro',
@@ -34,48 +43,21 @@ const pages: StagePage[] = [
       </div>
     ),
   },
-  {
-    id: 'kinetix',
-    label: 'Kinetix',
+  ...topics.map((t, i): StagePage => ({
+    id: t.id,
+    label: t.name,
     node: (
       <Chapter
-        index="01"
-        project="kinetix"
-        title="LLM traffic, in motion."
-        blurb="A self-hosted LLM gateway for coding agents and small technical teams. OpenAI- and Anthropic-compatible APIs sit in front of your providers, with virtual keys, routes, automatic fallback and usage tracking, in a single Rust binary."
-        tags={['LLM gateway', 'Rust', 'self-hosted', 'WASM plugins']}
-        visual={<RouteGraph />}
+        index={String(i + 1).padStart(2, '0')}
+        topic={t.id}
+        name={t.name}
+        title={t.title}
+        blurb={t.blurb}
+        tags={t.tags}
+        visual={visualFor[t.id]}
       />
     ),
-  },
-  {
-    id: 'merro',
-    label: 'Merro',
-    node: (
-      <Chapter
-        index="02"
-        project="merro"
-        title="Backlog to merged PR."
-        blurb="A multi-agent coding orchestrator for Pi. One main agent plans the work; sandboxed implementers and independent reviewers run visibly in tmux until the change is reviewed and merged."
-        tags={['coding agents', 'TypeScript', 'tmux', 'git worktrees']}
-        visual={<PipelineAgents />}
-      />
-    ),
-  },
-  {
-    id: 'kanade',
-    label: 'Kanade',
-    node: (
-      <Chapter
-        index="03"
-        project="kanade"
-        title="A Dynamic Island for niri."
-        blurb="A top-center island for the niri Wayland compositor, built with Amane. It sits quietly at the top of the screen and expands when you need it."
-        tags={['Linux desktop', 'Rust', 'niri', 'Wayland']}
-        visual={<IslandDemo />}
-      />
-    ),
-  },
+  })),
   { id: 'principles', label: 'How we work', node: <Principles /> },
   {
     id: 'next',

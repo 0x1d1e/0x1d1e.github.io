@@ -13,7 +13,9 @@ test('home renders the org name, real projects and footer', () => {
     screen.getByRole('heading', { level: 1, name: '0x1d1e' }),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('heading', { name: 'Backlog to merged PR.' }),
+    screen.getByRole('heading', {
+      name: 'Agents that ship. Humans that approve.',
+    }),
   ).toBeInTheDocument();
   expect(
     screen.getByRole('navigation', { name: 'Footer' }),

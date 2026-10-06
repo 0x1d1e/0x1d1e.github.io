@@ -10,28 +10,27 @@ const at = (path: string) =>
     </MemoryRouter>,
   );
 
-test('home tells one story: intro, three projects, principles, join in', () => {
+test('home shows the kinds of work, not individual projects', () => {
   const { container } = at('/');
   expect(
     [...container.querySelectorAll('[data-page]')].map((p) => p.id),
-  ).toEqual(['intro', 'kinetix', 'merro', 'kanade', 'principles', 'next']);
+  ).toEqual(['intro', 'ai', 'agents', 'desktop', 'principles', 'next']);
   for (const name of [
-    'LLM traffic, in motion.',
-    'Backlog to merged PR.',
-    'A Dynamic Island for niri.',
+    'Between your agents and the models.',
+    'Agents that ship. Humans that approve.',
+    'Software that stays out of the way.',
     'How we work',
   ])
     expect(screen.getByRole('heading', { name })).toBeInTheDocument();
+  for (const n of ['kanade', 'kinetix', 'merro'])
+    expect(screen.queryByText(new RegExp(n, 'i'))).toBeNull();
 });
 
-test('each project page links to its detail page; add-ons are not listed', () => {
+test('each kind of work links to its filtered projects', () => {
   at('/');
-  for (const n of ['kanade', 'kinetix', 'merro'])
-    expect(screen.getByRole('link', { name: `About ${n}` })).toHaveAttribute(
-      'href',
-      `/projects/${n}`,
-    );
-  expect(screen.queryByText(/kinetix-plugins/)).toBeNull();
+  expect(
+    screen.getByRole('link', { name: 'Projects in Agents and automation' }),
+  ).toHaveAttribute('href', '/projects?topic=agents');
 });
 
 test('about page has the org story', () => {

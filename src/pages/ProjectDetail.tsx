@@ -4,6 +4,7 @@ import { Button } from '../components/Button/Button';
 import { Cursor } from '../components/Cursor/Cursor';
 import { docsByProject } from '../content/docs';
 import { projects } from '../content/projects';
+import { visuals } from '../components/visuals';
 import { Reveal } from '../motion/Reveal';
 import { NotFound } from './NotFound';
 
@@ -14,28 +15,43 @@ export default function ProjectDetail() {
   const p = projects.find((x) => x.name === name);
   if (!p) return <NotFound />;
   const pages = docsByProject.get(p.name) ?? [];
+  const Visual = p.visual ? visuals[p.visual] : undefined;
 
   return (
-    <article className="mx-auto max-w-5xl px-6 pt-32 pb-24 md:px-14">
-      <p className="font-mono text-xs text-muted">
-        <AppLink href="/projects" className="hover:text-text">
-          projects
-        </AppLink>{' '}
-        / {p.name}
-        <Cursor />
-      </p>
-      <h1 className="mt-3 font-mono text-headline">{p.name}</h1>
-      <p className="mt-6 max-w-2xl text-xl leading-8 text-text-soft">
-        {p.summary}
-      </p>
-      <div className="mt-8 flex flex-wrap gap-4">
-        <Button href={p.repo} arrow target="_blank" rel="noopener noreferrer">
-          Repository
-        </Button>
-        {pages[0] && (
-          <Button href={`/docs/${p.name}/${pages[0].slug}`} arrow>
-            Docs
-          </Button>
+    <article className="mx-auto max-w-6xl px-6 pt-32 pb-24 md:px-14">
+      <div className={Visual ? 'grid items-center gap-12 lg:grid-cols-2' : ''}>
+        <div>
+          <p className="font-mono text-xs text-muted">
+            <AppLink href="/projects" className="hover:text-text">
+              projects
+            </AppLink>{' '}
+            / {p.name}
+            <Cursor />
+          </p>
+          <h1 className="mt-3 font-mono text-headline">{p.name}</h1>
+          <p className="mt-6 max-w-2xl text-xl leading-8 text-text-soft">
+            {p.summary}
+          </p>
+          <div className="mt-8 flex flex-wrap gap-4">
+            <Button
+              href={p.repo}
+              arrow
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Repository
+            </Button>
+            {pages[0] && (
+              <Button href={`/docs/${p.name}/${pages[0].slug}`} arrow>
+                Docs
+              </Button>
+            )}
+          </div>
+        </div>
+        {Visual && (
+          <Reveal delay={0.1}>
+            <Visual name={p.name} />
+          </Reveal>
         )}
       </div>
 

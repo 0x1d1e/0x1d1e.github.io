@@ -12,7 +12,7 @@ const STEP_MS = [2200, 1500, 2600, 1200];
 const APPS = ['Terminal', 'Browser', 'Files'];
 
 /** Concept of a top-center island that expands into a launcher. Decorative. */
-export function IslandDemo() {
+export function IslandDemo({ name = 'island' }: { name?: string }) {
   const reduce = useReducedMotion();
   const active = usePageActive();
   const [step, setStep] = useState(reduce ? 2 : 0);
@@ -44,7 +44,7 @@ export function IslandDemo() {
         >
           <div className="flex h-8 items-center justify-center gap-2 text-xs text-text-soft">
             <span className="size-1.5 bg-accent" />
-            {s.open ? 'launcher' : 'kanade'}
+            {s.open ? 'launcher' : name}
           </div>
           <ul
             className={`flex flex-col gap-1 px-5 text-xs transition-opacity duration-300 ${s.open ? 'opacity-100' : 'opacity-0'}`}

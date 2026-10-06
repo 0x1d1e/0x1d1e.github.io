@@ -3,7 +3,7 @@ import { useReducedMotion } from 'motion/react';
 import { usePageActive } from '../../motion/PageContext';
 import { Agent } from '../Agent/Agent';
 
-// The loop merro describes: backlog to reviewed, merged PR with sandboxed workers.
+// A generic coding-agent loop: backlog to reviewed, merged PR with sandboxed workers.
 const LINES = [
   { k: 'backlog', v: 'item picked' },
   { k: 'worker', v: 'sandbox up, branch checked out' },
@@ -50,7 +50,7 @@ export function AgentLoop() {
       <div aria-hidden="true">
         <p className="flex items-center gap-2 text-muted">
           <Agent className="size-5" />
-          $ merro run
+          $ agent run
           <span className="ml-1 inline-block h-3 w-1.5 animate-blink bg-accent align-middle" />
         </p>
         <ul className="mt-3 flex min-h-36 flex-col gap-1.5">
@@ -76,7 +76,7 @@ export function AgentLoop() {
         </ul>
       </div>
       <figcaption className="mt-4 text-muted">
-        Illustration of merro&apos;s flow, not a live run.
+        Illustration of an agent loop, not a live run.
       </figcaption>
     </figure>
   );

@@ -7,7 +7,7 @@ const STATIONS = ['backlog', 'plan', 'worker', 'review', 'merge'];
 const CX = (i: number) => 56 + i * 112;
 const SCALE = 4;
 
-// Illustrative scenes of merro's flow: a worker takes a change from backlog
+// Illustrative scenes of an agent workflow: a worker takes a change from backlog
 // to a reviewed, merged PR while an independent reviewer checks it.
 const SCENES = [
   {
@@ -45,7 +45,7 @@ const SCENES = [
 const STEP_MS = 1700;
 const HOLD_MS = 3000;
 
-/** Two pixel agents walking a change through merro's pipeline. Decorative. */
+/** Two pixel agents walking a change through an agent pipeline. Decorative. */
 export function PipelineAgents() {
   const reduce = useReducedMotion();
   const active = usePageActive();
@@ -167,7 +167,7 @@ export function PipelineAgents() {
         {s.log}
       </p>
       <figcaption className="mt-3 text-xs text-muted">
-        Illustration of merro&apos;s flow, not a live run.
+        Illustration of an agent workflow, not a live run.
       </figcaption>
     </figure>
   );

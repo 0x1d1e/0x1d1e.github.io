@@ -39,7 +39,7 @@ const STEP_MS = 4200;
 const PROVIDERS: Id[] = ['a', 'b', 'c'];
 
 /** Looping diagram of a gateway routing requests and failing over. Decorative. */
-export function RouteGraph() {
+export function RouteGraph({ name = 'gateway' }: { name?: string }) {
   const reduce = useReducedMotion();
   const active = usePageActive();
   const [step, setStep] = useState(reduce ? 1 : 0);
@@ -61,7 +61,7 @@ export function RouteGraph() {
       <svg
         viewBox="0 0 560 290"
         role="img"
-        aria-label="Diagram: a client sends a request to the Kinetix gateway, which routes it to one of three providers and falls back to another when one is unavailable."
+        aria-label="Diagram: a client sends a request to the gateway, which routes it to one of three providers and falls back to another when one is unavailable."
         className="w-full"
       >
         {/* links */}
@@ -80,7 +80,7 @@ export function RouteGraph() {
         {(
           [
             ['client', 'client'],
-            ['gw', 'kinetix'],
+            ['gw', name],
             ['a', 'provider-a'],
             ['b', 'provider-b'],
             ['c', 'provider-c'],

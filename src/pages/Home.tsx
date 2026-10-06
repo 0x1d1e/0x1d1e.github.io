@@ -1,13 +1,12 @@
-import { AiSection } from '../components/AiSection/AiSection';
 import { Button } from '../components/Button/Button';
+import { Chapter } from '../components/Chapter/Chapter';
 import { Hero } from '../components/Hero/Hero';
+import { IslandDemo } from '../components/IslandDemo/IslandDemo';
 import { Marquee } from '../components/Marquee/Marquee';
-import { PageDots } from '../components/PageDots/PageDots';
+import { PipelineAgents } from '../components/PipelineAgents/PipelineAgents';
 import { Principles } from '../components/Principles/Principles';
-import { Projects } from '../components/Projects/Projects';
-import { projects } from '../content/projects';
-import { Reveal } from '../motion/Reveal';
-import { Sheet } from '../motion/Sheet';
+import { RouteGraph } from '../components/RouteGraph/RouteGraph';
+import { Stage, type StagePage } from '../motion/Stage';
 
 const values = [
   'build first',
@@ -17,59 +16,95 @@ const values = [
   'no roadmap theater',
 ];
 
-const pages = [
-  { id: 'hero', label: 'Intro' },
-  { id: 'projects', label: 'Projects' },
-  { id: 'ai', label: 'AI infrastructure' },
-  { id: 'principles', label: 'How we work' },
-  { id: 'next', label: 'Next' },
-];
-
-export function Home() {
-  return (
-    <>
-      <PageDots items={pages} />
-      <Sheet id="hero">
+// One story, in order: who we are, what we build (one page each), how we work, how to join in.
+const pages: StagePage[] = [
+  {
+    id: 'intro',
+    label: 'Intro',
+    node: (
+      <div className="relative">
         <Hero
           headline="0x1d1e"
           subtext="software made during idle cycles"
-          cta={{ label: 'See the projects', href: '#projects-title' }}
+          cta={{ label: 'See the projects', href: '/projects' }}
         />
-        <Marquee items={values} />
-      </Sheet>
-      <Sheet id="projects" label="01 / projects">
-        <Projects projects={projects} />
-      </Sheet>
-      <Sheet id="ai" label="02 / ai">
-        <AiSection />
-      </Sheet>
-      <Sheet id="principles" label="03 / principles">
-        <Principles />
-      </Sheet>
-      <Sheet id="next" label="04 / next">
-        <section
-          aria-labelledby="next-title"
-          className="flex min-h-[70svh] flex-col justify-center gap-6 px-6 py-24 md:px-14"
-        >
-          <Reveal>
-            <h2 id="next-title" className="font-display text-headline">
-              Read the code. Break it.
-            </h2>
-            <p className="mt-4 max-w-xl text-text-soft">
-              Bug reports, experiments, fixes, criticism, benchmarks and weird
-              ideas are welcome.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Button href="/docs" arrow>
-                Read the docs
-              </Button>
-              <Button href="/about" arrow>
-                About us
-              </Button>
-            </div>
-          </Reveal>
-        </section>
-      </Sheet>
-    </>
-  );
+        <div className="absolute inset-x-0 bottom-0">
+          <Marquee items={values} />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'kinetix',
+    label: 'Kinetix',
+    node: (
+      <Chapter
+        index="01"
+        project="kinetix"
+        title="LLM traffic, in motion."
+        blurb="A self-hosted LLM gateway for coding agents and small technical teams. OpenAI- and Anthropic-compatible APIs sit in front of your providers, with virtual keys, routes, automatic fallback and usage tracking, in a single Rust binary."
+        tags={['LLM gateway', 'Rust', 'self-hosted', 'WASM plugins']}
+        visual={<RouteGraph />}
+      />
+    ),
+  },
+  {
+    id: 'merro',
+    label: 'Merro',
+    node: (
+      <Chapter
+        index="02"
+        project="merro"
+        title="Backlog to merged PR."
+        blurb="A multi-agent coding orchestrator for Pi. One main agent plans the work; sandboxed implementers and independent reviewers run visibly in tmux until the change is reviewed and merged."
+        tags={['coding agents', 'TypeScript', 'tmux', 'git worktrees']}
+        visual={<PipelineAgents />}
+      />
+    ),
+  },
+  {
+    id: 'kanade',
+    label: 'Kanade',
+    node: (
+      <Chapter
+        index="03"
+        project="kanade"
+        title="A Dynamic Island for niri."
+        blurb="A top-center island for the niri Wayland compositor, built with Amane. It sits quietly at the top of the screen and expands when you need it."
+        tags={['Linux desktop', 'Rust', 'niri', 'Wayland']}
+        visual={<IslandDemo />}
+      />
+    ),
+  },
+  { id: 'principles', label: 'How we work', node: <Principles /> },
+  {
+    id: 'next',
+    label: 'Join in',
+    node: (
+      <section
+        aria-labelledby="next-title"
+        className="flex flex-col gap-6 px-6 py-24 md:px-14 lg:py-0"
+      >
+        <h2 id="next-title" className="font-display text-headline">
+          Read the code. Break it.
+        </h2>
+        <p className="max-w-xl text-text-soft">
+          Bug reports, experiments, fixes, criticism, benchmarks and weird ideas
+          are welcome.
+        </p>
+        <div className="flex flex-wrap gap-4">
+          <Button href="/docs" arrow>
+            Read the docs
+          </Button>
+          <Button href="/about" arrow>
+            About us
+          </Button>
+        </div>
+      </section>
+    ),
+  },
+];
+
+export function Home() {
+  return <Stage pages={pages} />;
 }

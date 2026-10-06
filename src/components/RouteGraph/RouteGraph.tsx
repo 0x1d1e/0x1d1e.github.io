@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
+import { usePageActive } from '../../motion/PageContext';
 
 type Id = 'a' | 'b' | 'c';
 
@@ -40,16 +41,17 @@ const PROVIDERS: Id[] = ['a', 'b', 'c'];
 /** Looping diagram of a gateway routing requests and failing over. Decorative. */
 export function RouteGraph() {
   const reduce = useReducedMotion();
+  const active = usePageActive();
   const [step, setStep] = useState(reduce ? 1 : 0);
 
   useEffect(() => {
-    if (reduce) return;
+    if (reduce || !active) return;
     const id = setInterval(
       () => setStep((s) => (s + 1) % SCENES.length),
       STEP_MS,
     );
     return () => clearInterval(id);
-  }, [reduce]);
+  }, [reduce, active]);
 
   const scene = SCENES[step]!;
   const hop = scene.failed ? 1.5 : 0.7; // delay before the packet that succeeds

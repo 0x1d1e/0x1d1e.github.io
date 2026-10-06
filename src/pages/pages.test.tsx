@@ -10,28 +10,28 @@ const at = (path: string) =>
     </MemoryRouter>,
   );
 
-test('home stacks the pages and a side pager', () => {
+test('home tells one story: intro, three projects, principles, join in', () => {
   const { container } = at('/');
-  expect(container.querySelectorAll('[data-sheet]')).toHaveLength(5);
   expect(
-    screen.getByRole('navigation', { name: 'Sections' }),
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole('heading', { name: 'LLM traffic, in motion.' }),
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole('heading', { name: 'How we work' }),
-  ).toBeInTheDocument();
+    [...container.querySelectorAll('[data-page]')].map((p) => p.id),
+  ).toEqual(['intro', 'kinetix', 'merro', 'kanade', 'principles', 'next']);
+  for (const name of [
+    'LLM traffic, in motion.',
+    'Backlog to merged PR.',
+    'A Dynamic Island for niri.',
+    'How we work',
+  ])
+    expect(screen.getByRole('heading', { name })).toBeInTheDocument();
 });
 
-test('landing lists only the main projects', () => {
+test('each project page links to its detail page; add-ons are not listed', () => {
   at('/');
   for (const n of ['kanade', 'kinetix', 'merro'])
-    expect(screen.getByRole('link', { name: n })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: `About ${n}` })).toHaveAttribute(
       'href',
       `/projects/${n}`,
     );
-  expect(screen.queryByRole('link', { name: 'kinetix-plugins' })).toBeNull();
+  expect(screen.queryByText(/kinetix-plugins/)).toBeNull();
 });
 
 test('about page has the org story', () => {

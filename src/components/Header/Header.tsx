@@ -10,7 +10,7 @@ export function Header({ links }: { links: NavLink[] }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="absolute inset-x-0 top-[38px] z-40 flex items-center justify-between px-6 md:px-14">
+    <header className="scrim-top fixed inset-x-0 top-0 z-40 flex items-center justify-between px-6 pt-[38px] pb-8 md:px-14">
       <a href="/" className="font-mono text-sm">
         0x1d1e
       </a>

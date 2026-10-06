@@ -5,9 +5,15 @@ test('renders every section', async ({ page }) => {
   await expect(
     page.getByRole('heading', { level: 1, name: '0x1d1e' }),
   ).toBeVisible();
-  for (const name of ['Projects'])
-    await expect(page.getByRole('heading', { name })).toBeVisible();
-  await expect(page.getByRole('navigation', { name: 'Footer' })).toBeVisible();
+  // Pages overlap on the desktop stage, so check presence rather than visibility.
+  for (const name of [
+    'LLM traffic, in motion.',
+    'Backlog to merged PR.',
+    'A Dynamic Island for niri.',
+    'How we work',
+  ])
+    await expect(page.getByRole('heading', { name })).toBeAttached();
+  await expect(page.getByRole('navigation', { name: 'Footer' })).toBeAttached();
 });
 
 test('no horizontal overflow', async ({ page }) => {

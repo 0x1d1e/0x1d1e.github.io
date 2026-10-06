@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import type { Project } from '../../content/projects';
 import { useScramble } from '../../motion/useScramble';
-import { Reveal } from '../../motion/Reveal';
 import { AppLink } from '../AppLink/AppLink';
 import { Card } from '../Card/Card';
-import { Cursor } from '../Cursor/Cursor';
 
 export function ProjectCard({ p }: { p: Project }) {
   const [active, setActive] = useState(false);
@@ -48,35 +46,5 @@ export function ProjectCard({ p }: { p: Project }) {
         {p.tags.length > 0 && <span>· {p.tags.join(' · ')}</span>}
       </p>
     </Card>
-  );
-}
-
-export function Projects({ projects }: { projects: Project[] }) {
-  return (
-    <section aria-labelledby="projects-title" className="px-6 py-24 md:px-14">
-      <Reveal>
-        <p aria-hidden="true" className="mb-3 font-mono text-xs text-muted">
-          $ ls ./projects
-          <Cursor />
-        </p>
-        <h2 id="projects-title" className="font-display text-headline">
-          Projects
-        </h2>
-      </Reveal>
-      <ul className="mt-8 grid gap-4 md:grid-cols-3">
-        {projects.map((p, i) => (
-          <li key={p.name}>
-            <Reveal className="h-full" delay={(i % 3) * 0.06}>
-              <ProjectCard p={p} />
-            </Reveal>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-8 font-mono text-sm">
-        <AppLink href="/projects" className="text-accent hover:underline">
-          all projects →
-        </AppLink>
-      </p>
-    </section>
   );
 }

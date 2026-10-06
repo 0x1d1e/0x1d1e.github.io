@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
+import { usePageActive } from '../../motion/PageContext';
+import { Agent } from '../Agent/Agent';
 
 // The loop merro describes: backlog to reviewed, merged PR with sandboxed workers.
 const LINES = [
@@ -17,24 +19,25 @@ const HOLD_MS = 2800;
 /** Decorative looping terminal. Static (all lines) under reduced motion. */
 export function AgentLoop() {
   const reduce = useReducedMotion();
+  const active = usePageActive();
   // n = lines finished; line n is "running" with a spinner.
   const [n, setN] = useState(0);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    if (reduce) return;
+    if (reduce || !active) return;
     const t = setTimeout(
       () => setN((c) => (c >= LINES.length ? 0 : c + 1)),
       n === LINES.length ? HOLD_MS : STEP_MS,
     );
     return () => clearTimeout(t);
-  }, [n, reduce]);
+  }, [n, reduce, active]);
 
   useEffect(() => {
-    if (reduce) return;
+    if (reduce || !active) return;
     const id = setInterval(() => setTick((c) => c + 1), 80);
     return () => clearInterval(id);
-  }, [reduce]);
+  }, [reduce, active]);
 
   const finished = reduce ? LINES.length : n;
   const running = !reduce && n < LINES.length ? LINES[n] : undefined;
@@ -45,7 +48,8 @@ export function AgentLoop() {
       className="w-full max-w-md bg-card p-5 font-mono text-xs ring-1 ring-ring transition-colors duration-300 hover:ring-accent"
     >
       <div aria-hidden="true">
-        <p className="text-muted">
+        <p className="flex items-center gap-2 text-muted">
+          <Agent className="size-5" />
           $ merro run
           <span className="ml-1 inline-block h-3 w-1.5 animate-blink bg-accent align-middle" />
         </p>

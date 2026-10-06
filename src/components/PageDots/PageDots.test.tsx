@@ -3,21 +3,21 @@ import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import { PageDots } from './PageDots';
 
-test('links to each page and scrolls to it on click', async () => {
-  const scrollIntoView = vi.fn();
-  Element.prototype.scrollIntoView = scrollIntoView;
-  document.body.insertAdjacentHTML('beforeend', '<div id="b"></div>');
-  render(
-    <PageDots
-      items={[
-        { id: 'a', label: 'A' },
-        { id: 'b', label: 'B' },
-      ]}
-    />,
+const items = [
+  { id: 'a', label: 'A' },
+  { id: 'b', label: 'B' },
+];
+
+test('marks the active page and reports jumps', async () => {
+  const onJump = vi.fn();
+  render(<PageDots items={items} active={1} onJump={onJump} />);
+  expect(screen.getByRole('link', { name: 'B' })).toHaveAttribute(
+    'aria-current',
+    'true',
   );
-  const link = screen.getByRole('link', { name: 'B' });
-  expect(link).toHaveAttribute('href', '#b');
-  await userEvent.click(link);
-  expect(scrollIntoView).toHaveBeenCalled();
-  expect(screen.getByRole('link', { name: 'A' })).toHaveAttribute('href', '#a');
+  expect(screen.getByRole('link', { name: 'A' })).not.toHaveAttribute(
+    'aria-current',
+  );
+  await userEvent.click(screen.getByRole('link', { name: 'A' }));
+  expect(onJump).toHaveBeenCalledWith(0);
 });

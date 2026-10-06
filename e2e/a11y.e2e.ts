@@ -28,7 +28,7 @@ test('keyboard reaches nav, CTA and event stream', async ({ page }, info) => {
     );
   }
   expect(seen).toContain('See the projects');
-  expect(seen).toContain('merro');
+  expect(seen).toContain('About kinetix');
   void info;
 });
 

@@ -32,14 +32,40 @@ for (const path of ['/', '/about', '/projects', '/projects/merro']) {
   });
 }
 
-test('side pager jumps to a page', async ({ page }, info) => {
+test('side pager jumps between pages and tracks the current one', async ({
+  page,
+}, info) => {
   test.skip(info.project.name !== 'desktop', 'pager is hidden on mobile');
   await page.goto('/');
-  await page
-    .getByRole('navigation', { name: 'Sections' })
-    .getByRole('link', { name: 'AI infrastructure' })
-    .click();
+  const pager = page.getByRole('navigation', { name: 'Sections' });
+  await expect(pager.getByRole('link', { name: 'Intro' })).toHaveAttribute(
+    'aria-current',
+    'true',
+  );
+  await pager.getByRole('link', { name: 'Merro' }).click();
+  await expect(pager.getByRole('link', { name: 'Merro' })).toHaveAttribute(
+    'aria-current',
+    'true',
+  );
   await expect(
-    page.getByRole('heading', { name: 'LLM traffic, in motion.' }),
-  ).toBeInViewport();
+    page.getByRole('heading', { name: 'Backlog to merged PR.' }),
+  ).toHaveCSS('opacity', '1');
+});
+
+test('the pages turn: the outgoing page fades and tilts mid-scroll', async ({
+  page,
+}, info) => {
+  test.skip(info.project.name !== 'desktop', 'stage is desktop-only');
+  await page.goto('/');
+  const h = await page.evaluate(() => window.innerHeight);
+  await page.evaluate((h) => window.scrollTo(0, h * 0.5), h);
+  const intro = page.locator('#intro');
+  await expect
+    .poll(async () =>
+      Number(await intro.evaluate((e) => getComputedStyle(e).opacity)),
+    )
+    .toBeLessThan(0.6);
+  expect(await intro.evaluate((e) => getComputedStyle(e).transform)).not.toBe(
+    'none',
+  );
 });

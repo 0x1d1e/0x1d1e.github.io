@@ -4,6 +4,7 @@ import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import { AppLink } from '../AppLink/AppLink';
+import { Mermaid } from './Mermaid';
 
 const REPO = 'https://github.com/0x1d1e';
 
@@ -110,7 +111,15 @@ export function Markdown({
       />
     ),
     hr: () => <hr className="my-10 border-ring" />,
-    pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
+    pre: ({ children }) => {
+      const cls = (children as { props?: { className?: string } })?.props
+        ?.className;
+      return cls === 'language-mermaid' ? (
+        <Mermaid chart={textOf(children).replace(/\n$/, '')} />
+      ) : (
+        <CodeBlock>{children}</CodeBlock>
+      );
+    },
     code: ({ className, children }) =>
       className ? (
         <code className={className}>{children}</code>

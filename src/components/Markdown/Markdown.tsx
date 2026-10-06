@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- scrollable code and tables must be reachable by keyboard */
 import { useState, type ComponentProps, type ReactNode } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -27,7 +28,12 @@ function CodeBlock({ children }: { children?: ReactNode }) {
   }
   return (
     <div className="group relative my-6">
-      <pre className="overflow-x-auto bg-card p-4 font-mono text-xs leading-relaxed text-text-soft ring-1 ring-ring">
+      {/* Scrollable on small screens, so it must be reachable by keyboard. */}
+      <pre
+        tabIndex={0}
+        aria-label="Code"
+        className="overflow-x-auto bg-card p-4 font-mono text-xs leading-relaxed text-text-soft ring-1 ring-ring"
+      >
         {children}
       </pre>
       <button
@@ -114,7 +120,13 @@ export function Markdown({
         </code>
       ),
     table: (p) => (
-      <div className="my-6 overflow-x-auto ring-1 ring-ring">
+      // Scrollable on small screens, so it must be reachable by keyboard.
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label="Table"
+        className="my-6 overflow-x-auto ring-1 ring-ring"
+      >
         <table className="w-full text-left text-sm" {...strip(p)} />
       </div>
     ),
@@ -133,7 +145,9 @@ export function Markdown({
     img: ({ alt }) =>
       alt ? <span className="text-muted">[{alt}]</span> : null,
     a: ({ href = '', children }) => {
-      const cls = 'text-accent underline-offset-4 hover:underline';
+      // Underlined at rest: colour alone must not be what marks a link inside a paragraph.
+      const cls =
+        'text-accent underline underline-offset-4 transition-colors duration-150 hover:text-text';
       if (href.startsWith('#'))
         return (
           <a href={href} className={cls}>

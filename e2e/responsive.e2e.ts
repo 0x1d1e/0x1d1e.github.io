@@ -98,3 +98,53 @@ test('touch targets: the menu button and CTAs are at least 44px tall on phones',
     expect(box!.height).toBeGreaterThanOrEqual(44);
   }
 });
+
+test('touch: the wordmark scatters under a finger and settles after release', async ({
+  page,
+  context,
+}, info) => {
+  test.skip(
+    !['mobile', 'small'].includes(info.project.name),
+    'touch devices only',
+  );
+  await page.goto('/');
+  await page.waitForTimeout(2500); // let the particles assemble
+  const box = (await page.locator('#intro h1 canvas').boundingBox())!;
+  // Displaced particles are drawn in the accent colour.
+  const accent = () =>
+    page.evaluate(() => {
+      const c = document.querySelector<HTMLCanvasElement>('#intro h1 canvas')!;
+      const d = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data;
+      let n = 0;
+      for (let i = 0; i < d.length; i += 4)
+        if (
+          d[i + 3]! > 200 &&
+          d[i]! < 140 &&
+          d[i + 1]! > 120 &&
+          d[i + 2]! > 200
+        )
+          n++;
+      return n;
+    });
+  const cdp = await context.newCDPSession(page);
+  const x = box.x + box.width * 0.3;
+  const y = box.y + box.height * 0.5;
+  expect(await accent()).toBe(0);
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints: [{ x, y }],
+  });
+  for (let i = 1; i <= 5; i++) {
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [{ x: x + i * 6, y }],
+    });
+    await page.waitForTimeout(40);
+  }
+  await expect.poll(accent).toBeGreaterThan(100);
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchEnd',
+    touchPoints: [],
+  });
+  await expect.poll(accent, { timeout: 5000 }).toBe(0);
+});

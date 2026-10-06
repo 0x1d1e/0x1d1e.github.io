@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useReducedMotion } from 'motion/react';
+import { NO_POINTER, trackPointer } from '../../motion/pointer';
 
 const CELL = 8;
 const DENSITY = 1 / 140; // fraction of cells that hold a twinkling pixel
@@ -50,7 +51,7 @@ export function PixelField() {
     let w = 0;
     let h = 0;
     let px: Px[] = [];
-    const pointer = { x: -1e4, y: -1e4 };
+    let pointer = { x: NO_POINTER, y: NO_POINTER };
     let raf = 0;
 
     function resize() {
@@ -106,28 +107,19 @@ export function PixelField() {
       draw(t);
       raf = requestAnimationFrame(loop);
     }
-    function onMove(e: PointerEvent) {
-      pointer.x = e.clientX;
-      pointer.y = e.clientY;
-    }
-    function onLeave() {
-      pointer.x = pointer.y = -1e4;
-    }
-
     resize();
     window.addEventListener('resize', resize);
     if (reduce) {
       draw(0);
       return () => window.removeEventListener('resize', resize);
     }
-    window.addEventListener('pointermove', onMove);
-    document.documentElement.addEventListener('pointerleave', onLeave);
+    const tracker = trackPointer();
+    pointer = tracker.p;
     raf = requestAnimationFrame(loop);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
-      window.removeEventListener('pointermove', onMove);
-      document.documentElement.removeEventListener('pointerleave', onLeave);
+      tracker.stop();
     };
   }, [reduce]);
 

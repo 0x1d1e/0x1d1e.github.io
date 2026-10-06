@@ -3,11 +3,11 @@ import { Button } from '../components/Button/Button';
 import { Chapter } from '../components/Chapter/Chapter';
 import { Hero } from '../components/Hero/Hero';
 import { topics, type TopicId } from '../content/topics';
-import { IslandDemo } from '../components/IslandDemo/IslandDemo';
+import { AgentSwarm } from '../components/AgentSwarm/AgentSwarm';
 import { Marquee } from '../components/Marquee/Marquee';
-import { PipelineAgents } from '../components/PipelineAgents/PipelineAgents';
+import { NeuralNet } from '../components/NeuralNet/NeuralNet';
 import { Principles } from '../components/Principles/Principles';
-import { RouteGraph } from '../components/RouteGraph/RouteGraph';
+import { TilingDemo } from '../components/TilingDemo/TilingDemo';
 import { Stage, type StagePage } from '../motion/Stage';
 
 const values = [
@@ -18,11 +18,11 @@ const values = [
   'no roadmap theater',
 ];
 
-// What each kind of work looks like. Illustrations are generic; individual projects have their own pages.
+// What each kind of work looks like. Illustrations are generic; project-specific ones live on each project's page.
 const visualFor: Record<TopicId, ReactNode> = {
-  ai: <RouteGraph />,
-  agents: <PipelineAgents />,
-  desktop: <IslandDemo />,
+  ai: <NeuralNet />,
+  agents: <AgentSwarm />,
+  desktop: <TilingDemo />,
 };
 
 // One story, in order: who we are, what kind of work we do, how we work, how to join in.

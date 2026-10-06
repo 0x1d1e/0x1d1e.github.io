@@ -5,9 +5,9 @@ import { AgentRects } from '../Agent/Agent';
 
 const SCALE = 4;
 const STATIONS = [
-  { label: 'idea', x: 40 },
-  { label: 'prototype', x: 180 },
-  { label: 'verify', x: 320 },
+  { label: 'idea', x: 20 },
+  { label: 'prototype', x: 160 },
+  { label: 'verify', x: 300 },
 ];
 const BINS = {
   keep: { label: 'keep', x: 470, y: 36 },
@@ -48,7 +48,7 @@ export function BuildLoop() {
 
   const target =
     phase < 3
-      ? { x: STATIONS[phase]!.x + 28, y: 60 }
+      ? { x: STATIONS[phase]!.x + 38, y: 60 }
       : { x: BINS[outcome].x + 28, y: BINS[outcome].y - 40 };
   const said =
     phase < 3
@@ -82,7 +82,7 @@ export function BuildLoop() {
             <rect
               x={s.x}
               y="104"
-              width="56"
+              width="76"
               height="48"
               strokeWidth="1.5"
               className={`fill-bg transition-colors duration-300 ${phase === i ? 'stroke-accent' : 'stroke-ring'}`}
@@ -91,7 +91,7 @@ export function BuildLoop() {
               x={s.x + 28}
               y="133"
               textAnchor="middle"
-              fontSize="11"
+              fontSize="13"
               className="fill-text-soft"
             >
               {s.label}
@@ -117,7 +117,7 @@ export function BuildLoop() {
                 x={b.x + 35}
                 y={b.y + 18}
                 textAnchor="middle"
-                fontSize="11"
+                fontSize="13"
                 className={k === 'keep' ? 'fill-success' : 'fill-muted'}
               >
                 {b.label}
@@ -154,7 +154,7 @@ export function BuildLoop() {
             x="20"
             y="-8"
             textAnchor="middle"
-            fontSize="11"
+            fontSize="13"
             className="fill-accent"
           >
             {said}

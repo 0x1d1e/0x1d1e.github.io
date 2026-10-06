@@ -37,7 +37,7 @@ export function ProjectCard({ p }: { p: Project }) {
         </span>
       </h3>
       <p className="text-sm text-text-soft">{p.summary}</p>
-      <p className="mt-auto flex items-center gap-2 font-mono text-xs text-muted">
+      <p className="mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-muted">
         <span
           aria-hidden="true"
           className="inline-block size-1.5 animate-blink bg-accent"

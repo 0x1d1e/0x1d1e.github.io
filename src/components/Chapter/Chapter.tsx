@@ -30,7 +30,10 @@ export function Chapter({
         <p aria-hidden="true" className="mb-3 font-mono text-xs text-muted">
           {index} / {label}
         </p>
-        <h2 id={`${id}-title`} className="max-w-xl font-display text-headline">
+        <h2
+          id={`${id}-title`}
+          className="max-w-xl font-display text-headline text-balance"
+        >
           {title}
         </h2>
         <p className="mt-6 max-w-lg leading-7 text-text-soft">{blurb}</p>

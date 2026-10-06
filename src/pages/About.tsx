@@ -5,6 +5,7 @@ import { Stage, type StagePage } from '../motion/Stage';
 const ORG = 'https://github.com/0x1d1e';
 const interests = [
   'AI / LLM infrastructure',
+  'AI research: training, evals, deployment',
   'developer tools',
   'agents and automation',
   'Linux desktop software',

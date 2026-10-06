@@ -10,11 +10,11 @@ const at = (path: string) =>
     </MemoryRouter>,
   );
 
-test('home is one story: intro, what we build, how we work, join in', () => {
+test('home is one story: intro, tools, research, how we work, join in', () => {
   const { container } = at('/');
   expect(
     [...container.querySelectorAll('[data-page]')].map((p) => p.id),
-  ).toEqual(['intro', 'build', 'principles', 'next']);
+  ).toEqual(['intro', 'build', 'research', 'principles', 'next']);
   expect(
     screen.getByRole('heading', {
       name: 'Tools for the problems in front of us.',

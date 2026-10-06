@@ -13,6 +13,11 @@ export const topics = [
       'Coding agents and tooling that plan, change code in sandboxes, and get reviewed.',
   },
   {
+    id: 'research',
+    name: 'AI research',
+    blurb: 'Training, evaluating, and deploying models.',
+  },
+  {
     id: 'desktop',
     name: 'Desktop and interfaces',
     blurb: 'Linux desktop software and small interfaces.',

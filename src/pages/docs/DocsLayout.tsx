@@ -15,7 +15,7 @@ export function DocsLayout({ docs, children }: { docs: Doc[]; children: ReactNod
 
   return (
     <div className="mx-auto grid max-w-7xl gap-10 px-6 pt-32 pb-24 md:px-14 lg:grid-cols-[240px_1fr]">
-      <aside aria-label="Docs navigation" className="lg:sticky lg:top-24 lg:max-h-[calc(100svh-8rem)] lg:self-start lg:overflow-y-auto">
+      <aside aria-label="Docs navigation" className="lg:sticky lg:top-24 lg:max-h-[calc(100svh-8rem)] lg:self-start lg:overflow-y-auto lg:overscroll-contain">
         <AppLink href="/docs" className="font-mono text-xs text-muted uppercase hover:text-text">
           docs
         </AppLink>

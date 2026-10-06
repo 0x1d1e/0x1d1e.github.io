@@ -1,12 +1,5 @@
 import { expect, test } from 'vitest';
-import {
-  REST,
-  TYPE,
-  promptOpacity,
-  scan,
-  typedCommand,
-  wipe,
-} from './stageMath';
+import { REST, TYPE, RUN_END, scan, typedCommand, wipe } from './stageMath';
 
 test('pages hold still at rest and the transition spans the middle', () => {
   expect(scan(0, 0)).toBe(0);
@@ -34,9 +27,7 @@ test('typing follows scroll, forwards and backwards', () => {
   expect(typedCommand(cmd, TYPE / 4)).toBe(cmd.slice(0, 5)); // scrolling back un-types
 });
 
-test('the prompt is hidden at rest, shown while typing, gone once the wipe is well under way', () => {
-  expect(promptOpacity(0)).toBe(0);
-  expect(promptOpacity(0.1)).toBe(1);
-  expect(promptOpacity(TYPE)).toBe(1);
-  expect(promptOpacity(1)).toBe(0);
+test('the command stays on the line until it has run, then the directory changes', () => {
+  expect(RUN_END).toBeGreaterThan(TYPE); // fully typed before it runs
+  expect(typedCommand('ls', RUN_END - 0.01)).toBe('ls');
 });

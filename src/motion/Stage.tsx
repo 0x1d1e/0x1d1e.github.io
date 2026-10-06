@@ -10,14 +10,7 @@ import {
 } from 'motion/react';
 import { PageDots } from '../components/PageDots/PageDots';
 import { PageActive } from './PageContext';
-import {
-  clamp,
-  promptOpacity,
-  scan,
-  typed,
-  typedCommand,
-  wipe,
-} from './stageMath';
+import { RUN_END, clamp, scan, typed, typedCommand, wipe } from './stageMath';
 
 export type StagePage = {
   id: string;
@@ -95,7 +88,7 @@ function DeckPage({
           pointerEvents: active === i ? 'auto' : 'none',
         }}
       >
-        <div className="w-full pt-16">{page.node}</div>
+        <div className="w-full pt-16 pb-9">{page.node}</div>
       </motion.div>
     </PageActive.Provider>
   );
@@ -115,19 +108,25 @@ function Deck({ pages }: { pages: StagePage[] }) {
   });
   const [active, setActive] = useState(0);
   // Which transition is under way, and how far along it is.
-  const [prompt, setPrompt] = useState('');
-  const [dest, setDest] = useState('');
+  const [line, setLine] = useState({ path: pages[0]!.id, text: '' });
   useMotionValueEvent(p, 'change', (v) => {
     const t = v * (n - 1);
     setActive(clamp(Math.round(t), 0, n - 1));
     const k = clamp(Math.floor(t), 0, n - 2);
+    const from = pages[k]!;
     const to = pages[k + 1]!;
     const a = scan(t, k);
-    setPrompt(a > 0 ? typedCommand(to.command ?? `cd ./${to.id}`, a) : '');
-    setDest(
-      a >= 0.4
-        ? `${String(k + 1).padStart(2, '0')} / ${to.label.toLowerCase()}`
-        : '',
+    // The shell sits in the old directory while the command is typed and run,
+    // then lands in the new one.
+    const next =
+      a >= RUN_END
+        ? { path: to.id, text: '' }
+        : {
+            path: from.id,
+            text: typedCommand(to.command ?? `cd ./${to.id}`, a),
+          };
+    setLine((cur) =>
+      cur.path === next.path && cur.text === next.text ? cur : next,
     );
   });
   const scanAmount = (v: number) => {
@@ -139,7 +138,6 @@ function Deck({ pages }: { pages: StagePage[] }) {
     const w = wipe(scanAmount(v));
     return w > 0 && w < 1 ? 1 : 0;
   });
-  const promptAlpha = useTransform(p, (v) => promptOpacity(scanAmount(v)));
 
   function jump(i: number, smooth: boolean) {
     const top =
@@ -172,19 +170,24 @@ function Deck({ pages }: { pages: StagePage[] }) {
           style={{ top: lineTop, opacity: lineOn }}
           className="pointer-events-none absolute inset-x-0 z-30 h-px bg-accent shadow-[0_0_24px_1px_var(--color-accent)]"
         />
-        <motion.div
+        {/* The shell: always present, so typing a command reads as using it. */}
+        <div
           aria-hidden="true"
           data-testid="stage-prompt"
-          style={{ opacity: promptAlpha }}
-          className="pointer-events-none absolute top-1/2 left-1/2 z-40 w-[min(90vw,34rem)] -translate-x-1/2 -translate-y-1/2 bg-card px-6 py-5 font-mono ring-1 ring-accent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-40 flex h-9 items-center justify-between border-t border-ring bg-bg px-6 font-mono text-xs md:px-14"
         >
-          <p className="text-lg text-text">
-            <span className="text-accent">$ </span>
-            {prompt}
+          <p className="truncate text-text">
+            <span className="text-success">0x1d1e@idle</span>
+            <span className="text-muted">:</span>
+            <span className="text-accent">~/{line.path}</span>
+            <span className="text-muted"> $ </span>
+            {line.text}
             <span className="ml-0.5 inline-block h-[1.1em] w-[0.55em] animate-blink bg-accent align-text-bottom" />
           </p>
-          <p className="mt-2 h-5 text-xs text-muted">{dest && `→ ${dest}`}</p>
-        </motion.div>
+          <p className="shrink-0 text-muted">
+            {String(active + 1).padStart(2, '0')}/{String(n).padStart(2, '0')}
+          </p>
+        </div>
         <PageDots items={pages} active={active} onJump={(i) => jump(i, true)} />
       </div>
     </div>

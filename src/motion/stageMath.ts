@@ -22,6 +22,5 @@ export const typed = (a: number) => clamp(a / TYPE);
 export const typedCommand = (cmd: string, a: number) =>
   cmd.slice(0, Math.round(typed(a) * cmd.length));
 
-/** The prompt fades in as typing starts and out as the wipe gets going. */
-export const promptOpacity = (a: number) =>
-  clamp(a / 0.06) * (1 - clamp((wipe(a) - 0.1) / 0.3));
+/** Past this point the command has run: the shell shows the new directory. */
+export const RUN_END = 0.65;

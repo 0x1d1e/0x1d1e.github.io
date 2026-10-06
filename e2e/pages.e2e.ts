@@ -84,44 +84,41 @@ test('projects filter by topic', async ({ page }) => {
 // The browser normalises inset(0 0 0 0) to inset(0px).
 const UNWIPED = /^inset\(0(px)?( 0(px)?){0,3}\)$/;
 
-test('moving to the next page types a command first, then wipes', async ({
+test('the shell line types the next command, runs it, then shows the new directory', async ({
   page,
 }, info) => {
   test.skip(info.project.name !== 'desktop', 'stage is desktop-only');
   await page.goto('/');
   const h = await page.evaluate(() => window.innerHeight);
-  const prompt = page.getByTestId('stage-prompt');
+  const shell = page.getByTestId('stage-prompt');
   const text = async () =>
-    ((await prompt.textContent()) ?? '').replace(/\s+/g, ' ');
+    ((await shell.textContent()) ?? '').replace(/\s+/g, ' ');
   const at = (frac: number) =>
     page.evaluate(([y]) => window.scrollTo(0, y!), [h * frac]);
+  const clip = () =>
+    page.locator('#intro').evaluate((e) => getComputedStyle(e).clipPath);
 
-  // Hold zone: no prompt.
-  await at(0.1);
-  await expect
-    .poll(async () =>
-      Number(await prompt.evaluate((e) => getComputedStyle(e).opacity)),
-    )
-    .toBe(0);
+  // At rest the shell is already there, idle in the first directory.
+  await expect.poll(text).toContain('~/intro $');
 
-  // Early in the transition: the command is partly typed and the page is not wiped yet.
+  // Typing: part of the command, page not wiped yet.
   await at(0.35);
-  await expect.poll(text).toMatch(/^\$ c/);
-  expect(await text()).not.toContain('what-we-build');
-  expect(
-    await page.locator('#intro').evaluate((e) => getComputedStyle(e).clipPath),
-  ).toMatch(UNWIPED);
+  await expect.poll(text).toMatch(/~\/intro \$ cd /);
+  await expect.poll(text).not.toContain('what-we-build');
+  expect(await clip()).toMatch(UNWIPED);
 
-  // Typing done, wipe under way.
-  await at(0.62);
-  await expect.poll(text).toContain('cd ./what-we-build');
-  await expect
-    .poll(async () =>
-      page.locator('#intro').evaluate((e) => getComputedStyle(e).clipPath),
-    )
-    .not.toMatch(UNWIPED);
+  // Fully typed, wipe under way, still in the old directory.
+  await at(0.5);
+  await expect.poll(text).toContain('~/intro $ cd ./what-we-build');
+  await expect.poll(clip).not.toMatch(UNWIPED);
 
-  // Scrolling back un-types it.
+  // Done: new directory, empty command line.
+  await at(0.68);
+  await expect.poll(text).toContain('~/build $');
+  expect(await text()).not.toContain('cd ./');
+
+  // Scrolling back returns to the old directory and un-types.
   await at(0.35);
+  await expect.poll(text).toMatch(/~\/intro \$ cd /);
   await expect.poll(text).not.toContain('what-we-build');
 });

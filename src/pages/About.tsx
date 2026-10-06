@@ -21,7 +21,7 @@ const pages: StagePage[] = [
     node: (
       <section
         aria-labelledby="about-title"
-        className="flex min-h-svh flex-col justify-end lg:min-h-[calc(100svh-4rem)] gap-6 px-6 pt-32 pb-20 md:px-14"
+        className="flex min-h-svh flex-col justify-end lg:min-h-[calc(100svh-6.25rem)] gap-6 px-6 pt-32 pb-20 md:px-14"
       >
         <p aria-hidden="true" className="font-mono text-xs text-muted">
           $ whoami

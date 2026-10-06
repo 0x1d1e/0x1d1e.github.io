@@ -10,13 +10,15 @@ import {
 } from 'motion/react';
 import { PageDots } from '../components/PageDots/PageDots';
 import { PageActive } from './PageContext';
+import { RUN_END, clamp, scan, typed, typedCommand, wipe } from './stageMath';
 
-export type StagePage = { id: string; label: string; node: ReactNode };
-
-const REST = 0.2; // fraction of each page's scroll range spent holding still
-const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
-/** Progress (0..1) of the scan that moves the stage from page k to page k+1, given t = page position. */
-const scan = (t: number, k: number) => clamp((t - k - REST) / (1 - 2 * REST));
+export type StagePage = {
+  id: string;
+  label: string;
+  node: ReactNode;
+  /** Shell command "typed" as the stage moves to this page. Defaults to `cd ./<id>`. */
+  command?: string;
+};
 
 function useWide() {
   const [on, setOn] = useState(false);
@@ -45,14 +47,13 @@ function DeckPage({
   page: StagePage;
   jump: (i: number, smooth: boolean) => void;
 }) {
-  // A scan line sweeps down the screen: the new page is revealed above it,
-  // the old one is left below it, drifting down a little as it is covered.
-  const enter = useTransform(p, (v) =>
-    i === 0 ? 1 : scan(v * (n - 1), i - 1),
-  );
-  const leave = useTransform(p, (v) =>
-    i === n - 1 ? 0 : scan(v * (n - 1), i),
-  );
+  // The command is typed first, then a scan line sweeps down the screen: the
+  // new page is revealed above it, the old one is left below it, drifting down
+  // a little as it is covered.
+  const raw = (k: number, v: number) => scan(v * (n - 1), k);
+  const enter = useTransform(p, (v) => (i === 0 ? 1 : wipe(raw(i - 1, v))));
+  const leave = useTransform(p, (v) => (i === n - 1 ? 0 : wipe(raw(i, v))));
+  const typing = useTransform(p, (v) => (i === n - 1 ? 0 : typed(raw(i, v))));
   const clipPath = useTransform([enter, leave], ([e = 1, l = 0]: number[]) =>
     e < 1
       ? `inset(0 0 ${(1 - e) * 100}% 0)`
@@ -64,8 +65,11 @@ function DeckPage({
     [enter, leave],
     ([e = 1, l = 0]: number[]) => `${(1 - e) * -6 + l * 6}vh`,
   );
-  const opacity = useTransform([enter, leave], ([e = 1, l = 0]: number[]) =>
-    clamp(0.35 + 0.65 * e - 0.55 * l),
+  // The page being left dims while its command is typed.
+  const opacity = useTransform(
+    [enter, leave, typing],
+    ([e = 1, l = 0, ty = 0]: number[]) =>
+      clamp(0.35 + 0.65 * e - 0.55 * l - 0.3 * ty),
   );
 
   return (
@@ -84,7 +88,7 @@ function DeckPage({
           pointerEvents: active === i ? 'auto' : 'none',
         }}
       >
-        <div className="w-full pt-16">{page.node}</div>
+        <div className="w-full pt-16 pb-9">{page.node}</div>
       </motion.div>
     </PageActive.Provider>
   );
@@ -103,22 +107,36 @@ function Deck({ pages }: { pages: StagePage[] }) {
     mass: 0.4,
   });
   const [active, setActive] = useState(0);
-  const [next, setNext] = useState(1);
+  // Which transition is under way, and how far along it is.
+  const [line, setLine] = useState({ path: pages[0]!.id, text: '' });
   useMotionValueEvent(p, 'change', (v) => {
     const t = v * (n - 1);
     setActive(clamp(Math.round(t), 0, n - 1));
-    setNext(clamp(Math.floor(t) + 1, 1, n - 1));
+    const k = clamp(Math.floor(t), 0, n - 2);
+    const from = pages[k]!;
+    const to = pages[k + 1]!;
+    const a = scan(t, k);
+    // The shell sits in the old directory while the command is typed and run,
+    // then lands in the new one.
+    const next =
+      a >= RUN_END
+        ? { path: to.id, text: '' }
+        : {
+            path: from.id,
+            text: typedCommand(to.command ?? `cd ./${to.id}`, a),
+          };
+    setLine((cur) =>
+      cur.path === next.path && cur.text === next.text ? cur : next,
+    );
   });
-  // Where the scan line is, and whether a scan is under way.
-  const lineTop = useTransform(
-    p,
-    (v) =>
-      `${scan(v * (n - 1), Math.min(Math.floor(v * (n - 1)), n - 2)) * 100}%`,
-  );
-  const lineOn = useTransform(p, (v) => {
+  const scanAmount = (v: number) => {
     const t = v * (n - 1);
-    const a = scan(t, Math.min(Math.floor(t), n - 2));
-    return a > 0 && a < 1 ? 1 : 0;
+    return scan(t, clamp(Math.floor(t), 0, n - 2));
+  };
+  const lineTop = useTransform(p, (v) => `${wipe(scanAmount(v)) * 100}%`);
+  const lineOn = useTransform(p, (v) => {
+    const w = wipe(scanAmount(v));
+    return w > 0 && w < 1 ? 1 : 0;
   });
 
   function jump(i: number, smooth: boolean) {
@@ -151,11 +169,25 @@ function Deck({ pages }: { pages: StagePage[] }) {
           aria-hidden="true"
           style={{ top: lineTop, opacity: lineOn }}
           className="pointer-events-none absolute inset-x-0 z-30 h-px bg-accent shadow-[0_0_24px_1px_var(--color-accent)]"
+        />
+        {/* The shell: always present, so typing a command reads as using it. */}
+        <div
+          aria-hidden="true"
+          data-testid="stage-prompt"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-40 flex h-9 items-center justify-between border-t border-ring bg-bg px-6 font-mono text-xs md:px-14"
         >
-          <span className="absolute bottom-1 left-6 bg-bg px-2 py-0.5 font-mono text-xs text-accent md:left-14">
-            {String(next).padStart(2, '0')} / {pages[next]?.label}
-          </span>
-        </motion.div>
+          <p className="truncate text-text">
+            <span className="text-success">0x1d1e@idle</span>
+            <span className="text-muted">:</span>
+            <span className="text-accent">~/{line.path}</span>
+            <span className="text-muted"> $ </span>
+            {line.text}
+            <span className="ml-0.5 inline-block h-[1.1em] w-[0.55em] animate-blink bg-accent align-text-bottom" />
+          </p>
+          <p className="shrink-0 text-muted">
+            {String(active + 1).padStart(2, '0')}/{String(n).padStart(2, '0')}
+          </p>
+        </div>
         <PageDots items={pages} active={active} onJump={(i) => jump(i, true)} />
       </div>
     </div>
@@ -163,9 +195,10 @@ function Deck({ pages }: { pages: StagePage[] }) {
 }
 
 /**
- * Full-screen pages driven by scroll: a scan line sweeps down the screen,
- * revealing the next page above it and leaving the old one below. Small or short screens and reduced
- * motion get the same pages as a plain scrolling column.
+ * Full-screen pages driven by scroll. Moving on first "types" a shell command
+ * (scroll-linked, so it un-types when you scroll back), then a scan line
+ * sweeps down the screen, revealing the next page above it. Small or short
+ * screens and reduced motion get the same pages as a plain scrolling column.
  */
 export function Stage({ pages }: { pages: StagePage[] }) {
   const reduce = useReducedMotion();

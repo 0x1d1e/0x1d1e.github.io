@@ -17,7 +17,7 @@ export function Hero({ headline, subtext, cta }: HeroProps) {
   return (
     <section
       aria-labelledby="hero-title"
-      className="relative flex min-h-svh items-end lg:min-h-[calc(100svh-4rem)] overflow-hidden"
+      className="relative flex min-h-svh items-end lg:min-h-[calc(100svh-6.25rem)] overflow-hidden"
     >
       <div aria-hidden="true" className="scrim absolute inset-0" />
       <div className="relative z-10 grid w-full items-end gap-12 px-6 pt-28 pb-16 md:px-14 md:pb-24 lg:grid-cols-2 lg:pt-0">

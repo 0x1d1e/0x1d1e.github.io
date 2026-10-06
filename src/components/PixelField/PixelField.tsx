@@ -3,7 +3,21 @@ import { useReducedMotion } from 'motion/react';
 
 const CELL = 8;
 const DENSITY = 1 / 140; // fraction of cells that hold a twinkling pixel
-const GLYPHS = ['0', '1', 'x', '{', '}', '<', '/', '#'];
+const GLYPHS = [
+  '0',
+  '1',
+  'x',
+  '{',
+  '}',
+  '<',
+  '/',
+  '#',
+  'λ',
+  '∑',
+  '→',
+  '∂',
+  '·',
+];
 const RADIUS = 110;
 
 type Px = {

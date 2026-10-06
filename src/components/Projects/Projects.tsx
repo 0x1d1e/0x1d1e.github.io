@@ -2,10 +2,11 @@ import { useState } from 'react';
 import type { Project } from '../../content/projects';
 import { useScramble } from '../../motion/useScramble';
 import { Reveal } from '../../motion/Reveal';
+import { AppLink } from '../AppLink/AppLink';
 import { Card } from '../Card/Card';
 import { Cursor } from '../Cursor/Cursor';
 
-function ProjectCard({ p }: { p: Project }) {
+export function ProjectCard({ p }: { p: Project }) {
   const [active, setActive] = useState(false);
   const label = useScramble(p.name, active);
 
@@ -18,8 +19,8 @@ function ProjectCard({ p }: { p: Project }) {
       className="group relative flex h-full flex-col gap-3 p-6 transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:ring-accent focus-within:ring-accent active:translate-y-0"
     >
       <h3 className="flex items-center justify-between font-mono text-lg">
-        <a
-          href={p.repo}
+        <AppLink
+          href={`/projects/${p.name}`}
           aria-label={p.name}
           className="after:absolute after:inset-0 focus-visible:outline-none"
         >
@@ -29,7 +30,7 @@ function ProjectCard({ p }: { p: Project }) {
             </span>
             {label}
           </span>
-        </a>
+        </AppLink>
         <span
           aria-hidden="true"
           className="-translate-x-1 translate-y-1 text-accent opacity-0 transition duration-150 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-x-0 group-focus-within:translate-y-0 group-focus-within:opacity-100"
@@ -62,7 +63,7 @@ export function Projects({ projects }: { projects: Project[] }) {
           Projects
         </h2>
       </Reveal>
-      <ul className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-8 grid gap-4 md:grid-cols-3">
         {projects.map((p, i) => (
           <li key={p.name}>
             <Reveal className="h-full" delay={(i % 3) * 0.06}>
@@ -71,6 +72,11 @@ export function Projects({ projects }: { projects: Project[] }) {
           </li>
         ))}
       </ul>
+      <p className="mt-8 font-mono text-sm">
+        <AppLink href="/projects" className="text-accent hover:underline">
+          all projects →
+        </AppLink>
+      </p>
     </section>
   );
 }

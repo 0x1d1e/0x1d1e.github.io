@@ -11,6 +11,8 @@ export const projectSchema = z.object({
   repo: z.url(),
   tags: z.array(z.string()).default([]),
   updated: z.iso.date(),
+  // Supporting repos (plugins, frontends) listed on the project page, not on the landing page.
+  addons: z.array(z.string()).default([]),
 });
 
 export type Project = z.infer<typeof projectSchema>;

@@ -1,4 +1,5 @@
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
+import { AppLink } from '../AppLink/AppLink';
 
 type Props = AnchorHTMLAttributes<HTMLAnchorElement> & {
   arrow?: boolean;
@@ -28,12 +29,12 @@ export function Button({
   ...rest
 }: Props) {
   return (
-    <a
+    <AppLink
       className={`group/btn inline-flex items-center gap-2 rounded-btn bg-text px-5 py-3 font-display text-sm font-medium text-cta-text transition-colors duration-150 hover:bg-text-alt active:scale-[0.98] ${className}`}
       {...rest}
     >
       {children}
       {arrow && <ArrowIcon />}
-    </a>
+    </AppLink>
   );
 }

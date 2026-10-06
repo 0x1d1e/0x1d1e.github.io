@@ -5,21 +5,26 @@ import { Header } from './components/Header/Header';
 import { PixelField } from './components/PixelField/PixelField';
 import { ScrollProgress } from './components/ScrollProgress/ScrollProgress';
 import { PageTransition } from './motion/PageTransition';
+import { About } from './pages/About';
 import { Home } from './pages/Home';
+import { ProjectsPage } from './pages/ProjectsPage';
 import { NotFound } from './pages/NotFound';
 
 // Docs (markdown renderer + content) stay out of the landing bundle.
+const ProjectDetail = lazy(() => import('./pages/ProjectDetail'));
 const DocsRoutes = lazy(() => import('./pages/docs/DocsRoutes'));
 
 const ORG = 'https://github.com/0x1d1e';
 
 const nav = [
-  { label: 'Projects', href: '/#projects-title' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'About', href: '/about' },
   { label: 'Docs', href: '/docs' },
   { label: 'GitHub', href: ORG },
 ];
 
 const footerLinks = [
+  { label: 'About', href: '/about' },
   { label: 'Docs', href: '/docs' },
   { label: 'Contributing', href: `${ORG}/.github/blob/main/CONTRIBUTING.md` },
   { label: 'Security', href: `${ORG}/.github/blob/main/SECURITY.md` },
@@ -44,7 +49,7 @@ function Shell() {
       <ScrollProgress />
       <ScrollToHash />
       <Header links={nav} />
-      <main className="text-text">
+      <main className="overflow-x-clip text-text">
         <PageTransition key={pathname}>
           <Suspense fallback={<div className="min-h-svh" />}>
             <Outlet />
@@ -61,6 +66,9 @@ export function App() {
     <Routes>
       <Route element={<Shell />}>
         <Route index element={<Home />} />
+        <Route path="about" element={<About />} />
+        <Route path="projects" element={<ProjectsPage />} />
+        <Route path="projects/:name" element={<ProjectDetail />} />
         <Route path="docs/*" element={<DocsRoutes />} />
         <Route path="*" element={<NotFound />} />
       </Route>

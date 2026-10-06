@@ -27,9 +27,15 @@
 
   --animate-blink: blink 1.06s step-end infinite;
   --animate-marquee: marquee 32s linear infinite;
+  --animate-fade-in: fade-in 0.3s ease-out both;
 
   @keyframes blink {
     50% {
+      opacity: 0;
+    }
+  }
+  @keyframes fade-in {
+    from {
       opacity: 0;
     }
   }

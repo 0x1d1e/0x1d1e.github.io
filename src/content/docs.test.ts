@@ -56,12 +56,6 @@ test('search matches every term in title or body, titles first', () => {
 });
 
 test('seed docs cover every project', () => {
-  expect([...docsByProject.keys()]).toEqual([
-    'kanade',
-    'kinetix',
-    'kinetix-frontend',
-    'kinetix-plugins',
-    'merro',
-  ]);
+  expect([...docsByProject.keys()]).toEqual(['kanade', 'kinetix', 'merro']);
   expect(docs.every((d) => d.headings.every((h) => h.id))).toBe(true);
 });

@@ -5,4 +5,5 @@ status: experimental
 repo: https://github.com/0x1d1e/kinetix
 tags: [rust, llm-gateway, self-hosted]
 updated: 2026-10-05
+addons: [kinetix-plugins, kinetix-frontend]
 ---

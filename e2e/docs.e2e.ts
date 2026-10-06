@@ -55,3 +55,41 @@ test('unknown route shows not found', async ({ page }) => {
   await page.goto('/nope');
   await expect(page.getByRole('heading', { name: 'Not found' })).toBeVisible();
 });
+
+test('docs: the Kanade concept video is self-hosted and playable', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/docs/kanade/overview');
+  const video = page.locator('video');
+  await expect(video).toHaveAttribute('controls', '');
+  const src = await video.locator('source').getAttribute('src');
+  const poster = await video.getAttribute('poster');
+  for (const url of [src!, poster!]) {
+    const res = await request.get(new URL(url, page.url()).toString());
+    expect(res.ok()).toBe(true);
+  }
+  expect(
+    (await request.get(new URL(src!, page.url()).toString())).headers()[
+      'content-type'
+    ],
+  ).toContain('video/mp4');
+  // It decodes and starts (muted so the browser allows playback).
+  const played = await video.evaluate(async (v: HTMLVideoElement) => {
+    v.muted = true;
+    await v.play();
+    await new Promise((r) => setTimeout(r, 600));
+    return v.currentTime > 0;
+  });
+  expect(played).toBe(true);
+});
+
+test('docs: the video page has no axe violations', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/docs/kanade/overview');
+  await page.locator('video').waitFor();
+  const { violations } = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze();
+  expect(violations).toEqual([]);
+});

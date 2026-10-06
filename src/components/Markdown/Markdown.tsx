@@ -142,8 +142,42 @@ export function Markdown({
         {...strip(p)}
       />
     ),
-    img: ({ alt }) =>
-      alt ? <span className="text-muted">[{alt}]</span> : null,
+    // Local videos (/public) play in place; remote images are never loaded.
+    // Video needs name.jpg (poster) and name.en.vtt (captions) beside it.
+    img: ({ src = '', alt = '' }) => {
+      if (/\.(mp4|webm)$/i.test(src) && !/^[a-z]+:/i.test(src)) {
+        const url = `${base}/${src.replace(/^\/+/, '')}`;
+        return (
+          <span className="my-6 block">
+            <video
+              controls
+              playsInline
+              preload="none"
+              poster={url.replace(/\.(mp4|webm)$/i, '.jpg')}
+              aria-label={alt}
+              className="aspect-video w-full bg-card ring-1 ring-ring"
+            >
+              <source
+                src={url}
+                type={/\.webm$/i.test(url) ? 'video/webm' : 'video/mp4'}
+              />
+              {/* Every video ships a captions file next to it: name.en.vtt */}
+              <track
+                kind="captions"
+                srcLang="en"
+                label="English"
+                src={url.replace(/\.(mp4|webm)$/i, '.en.vtt')}
+              />
+              <a href={url}>Download the video</a>
+            </video>
+            {alt && (
+              <span className="mt-2 block text-xs text-muted">{alt}</span>
+            )}
+          </span>
+        );
+      }
+      return alt ? <span className="text-muted">[{alt}]</span> : null;
+    },
     a: ({ href = '', children }) => {
       // Underlined at rest: colour alone must not be what marks a link inside a paragraph.
       const cls =

@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex -- scrollable code and tables must be reachable by keyboard */
-import { useState, type ComponentProps, type ReactNode } from 'react';
+import { memo, useState, type ComponentProps, type ReactNode } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
@@ -73,7 +73,7 @@ function heading(Tag: 'h2' | 'h3' | 'h4', cls: string) {
  * files that exist as docs become in-app routes, everything else points at
  * the repo. Remote images are not loaded (no third-party requests).
  */
-export function Markdown({
+function MarkdownView({
   children,
   project,
   slugs,
@@ -243,6 +243,20 @@ export function Markdown({
     </ReactMarkdown>
   );
 }
+
+/**
+ * Re-rendering rebuilds the component map, which remounts every element
+ * (code blocks, tables, video, diagrams). The page re-renders as the active
+ * heading changes while scrolling, so skip renders when the props are equal.
+ */
+export const Markdown = memo(
+  MarkdownView,
+  (a, b) =>
+    a.children === b.children &&
+    a.project === b.project &&
+    a.base === b.base &&
+    a.slugs.join('|') === b.slugs.join('|'),
+);
 
 /** react-markdown passes the hast `node` prop; keep it off DOM elements. */
 function strip<T extends { node?: unknown }>(props: T) {

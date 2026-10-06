@@ -8,6 +8,7 @@
     font-family: var(--font-display);
     font-optical-sizing: auto; /* opsz axis gives Inter its Display cut at large sizes */
     -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth; /* in-page anchors glide; route changes opt out in ScrollToHash */
   }
   :focus-visible {
     outline: 2px solid var(--color-accent);

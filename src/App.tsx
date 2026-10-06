@@ -36,7 +36,7 @@ function ScrollToHash() {
   const { pathname, hash } = useLocation();
   useEffect(() => {
     if (hash) document.getElementById(hash.slice(1))?.scrollIntoView();
-    else window.scrollTo(0, 0);
+    else window.scrollTo({ top: 0, behavior: 'instant' }); // page changes never glide
   }, [pathname, hash]);
   return null;
 }

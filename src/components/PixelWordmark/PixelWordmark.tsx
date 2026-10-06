@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
+import { NO_POINTER, trackPointer } from '../../motion/pointer';
 
 type P = {
   x: number;
@@ -44,7 +45,7 @@ export function PixelWordmark({ text }: { text: string }) {
     let dead = false;
     let ps: P[] = [];
     let step = 4;
-    const pointer = { x: -1e4, y: -1e4 };
+    const tracker = reduce ? undefined : trackPointer();
     let w = 0;
     let h = 0;
 
@@ -92,10 +93,16 @@ export function PixelWordmark({ text }: { text: string }) {
     function frame() {
       ctx!.clearRect(0, 0, w, h);
       const s = step - 1;
+      // Pointer in canvas coordinates; far away when nothing is touching.
+      const r = el!.getBoundingClientRect();
+      const px =
+        tracker && tracker.p.x > NO_POINTER ? tracker.p.x - r.left : NO_POINTER;
+      const py =
+        tracker && tracker.p.y > NO_POINTER ? tracker.p.y - r.top : NO_POINTER;
       for (const p of ps) {
         if (!reduce) {
-          const dx = p.x - pointer.x;
-          const dy = p.y - pointer.y;
+          const dx = p.x - px;
+          const dy = p.y - py;
           const d = Math.hypot(dx, dy);
           if (d < PUSH_RADIUS && d > 0) {
             const f = (1 - d / PUSH_RADIUS) * 5;
@@ -122,24 +129,17 @@ export function PixelWordmark({ text }: { text: string }) {
       frame();
     }
 
-    function onMove(e: PointerEvent) {
-      const r = el!.getBoundingClientRect();
-      pointer.x = e.clientX - r.left;
-      pointer.y = e.clientY - r.top;
-    }
-
     document.fonts
       .load(`600 100px ${family}`)
       .catch(() => undefined)
       .then(() => !dead && start());
     const ro = new ResizeObserver(() => !dead && start());
     ro.observe(box);
-    if (!reduce) window.addEventListener('pointermove', onMove);
     return () => {
       dead = true;
       cancelAnimationFrame(raf);
       ro.disconnect();
-      window.removeEventListener('pointermove', onMove);
+      tracker?.stop();
     };
   }, [text, reduce]);
 
@@ -149,7 +149,8 @@ export function PixelWordmark({ text }: { text: string }) {
       <canvas
         ref={canvas}
         aria-hidden="true"
-        className={mode === 'canvas' ? 'block w-full' : 'hidden'}
+        // pan-y: a horizontal drag keeps the pointer stream (and the effect); a vertical one scrolls.
+        className={mode === 'canvas' ? 'block w-full touch-pan-y' : 'hidden'}
       />
     </span>
   );

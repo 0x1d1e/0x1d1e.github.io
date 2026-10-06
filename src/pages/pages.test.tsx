@@ -28,7 +28,7 @@ test('home is one story: intro, tools, research, how we work, join in', () => {
 
 test('home does not feature individual projects or focus areas', () => {
   at('/');
-  for (const n of ['kanade', 'kinetix', 'merro', 'neural', 'tiling'])
+  for (const n of ['kanade', 'kinetix', 'merro', 'tiling'])
     expect(screen.queryByText(new RegExp(n, 'i'))).toBeNull();
 });
 

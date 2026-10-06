@@ -3,8 +3,8 @@ import { Button } from '../components/Button/Button';
 import { Chapter } from '../components/Chapter/Chapter';
 import { Hero } from '../components/Hero/Hero';
 import { Marquee } from '../components/Marquee/Marquee';
+import { NeuralNet } from '../components/NeuralNet/NeuralNet';
 import { Principles } from '../components/Principles/Principles';
-import { TrainEvalDeploy } from '../components/TrainEvalDeploy/TrainEvalDeploy';
 import { Stage, type StagePage } from '../motion/Stage';
 
 const values = [
@@ -63,11 +63,11 @@ const pages: StagePage[] = [
         id="research"
         index="02"
         label="ai research"
-        title="Train it. Measure it. Ship it."
+        title="Train it. Measure it. Ship it."
         blurb="We also do AI research: training models, evaluating them, and deploying what holds up. Measurements beat guesses, so evals come before claims."
         tags={['training', 'evaluation', 'deployment', 'models']}
         cta={{ label: 'More about us', href: '/about' }}
-        visual={<TrainEvalDeploy />}
+        visual={<NeuralNet />}
       />
     ),
   },

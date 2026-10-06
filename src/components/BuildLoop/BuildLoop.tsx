@@ -5,13 +5,13 @@ import { AgentRects } from '../Agent/Agent';
 
 const SCALE = 4;
 const STATIONS = [
-  { label: 'idea', x: 40 },
-  { label: 'prototype', x: 180 },
-  { label: 'verify', x: 320 },
+  { label: 'idea', x: 10 },
+  { label: 'prototype', x: 140 },
+  { label: 'verify', x: 270 },
 ];
 const BINS = {
-  keep: { label: 'keep', x: 470, y: 36 },
-  drop: { label: 'archive', x: 470, y: 150 },
+  keep: { label: 'keep', x: 450, y: 36 },
+  drop: { label: 'archive', x: 450, y: 150 },
 };
 // Three ideas per loop: experiments are allowed to fail.
 const OUTCOMES: ('keep' | 'drop')[] = ['keep', 'drop', 'keep'];
@@ -48,7 +48,7 @@ export function BuildLoop() {
 
   const target =
     phase < 3
-      ? { x: STATIONS[phase]!.x + 28, y: 60 }
+      ? { x: STATIONS[phase]!.x + 45, y: 60 }
       : { x: BINS[outcome].x + 28, y: BINS[outcome].y - 40 };
   const said =
     phase < 3
@@ -65,15 +65,15 @@ export function BuildLoop() {
     >
       <svg viewBox="0 0 560 250" aria-hidden="true" className="w-full">
         <line
-          x1="68"
-          x2="320"
+          x1="100"
+          x2="270"
           y1="128"
           y2="128"
           className="stroke-ring"
           strokeWidth="1.5"
         />
         <path
-          d="M376 128 H 430 V 70 H 470 M430 128 V 180 H 470"
+          d="M360 128 H 410 V 70 H 450 M410 128 V 180 H 450"
           className="fill-none stroke-ring"
           strokeWidth="1.5"
         />
@@ -82,16 +82,16 @@ export function BuildLoop() {
             <rect
               x={s.x}
               y="104"
-              width="56"
+              width="90"
               height="48"
               strokeWidth="1.5"
               className={`fill-bg transition-colors duration-300 ${phase === i ? 'stroke-accent' : 'stroke-ring'}`}
             />
             <text
-              x={s.x + 28}
+              x={s.x + 45}
               y="133"
               textAnchor="middle"
-              fontSize="11"
+              fontSize="15"
               className="fill-text-soft"
             >
               {s.label}
@@ -107,17 +107,17 @@ export function BuildLoop() {
               <rect
                 x={b.x}
                 y={b.y}
-                width="70"
+                width="100"
                 height="68"
                 strokeWidth="1.5"
                 strokeDasharray={k === 'drop' ? '4 4' : undefined}
                 className={`fill-bg transition-colors duration-300 ${hit ? (k === 'keep' ? 'stroke-success' : 'stroke-accent') : 'stroke-ring'}`}
               />
               <text
-                x={b.x + 35}
-                y={b.y + 18}
+                x={b.x + 50}
+                y={b.y + 20}
                 textAnchor="middle"
-                fontSize="11"
+                fontSize="15"
                 className={k === 'keep' ? 'fill-success' : 'fill-muted'}
               >
                 {b.label}
@@ -154,7 +154,7 @@ export function BuildLoop() {
             x="20"
             y="-8"
             textAnchor="middle"
-            fontSize="11"
+            fontSize="15"
             className="fill-accent"
           >
             {said}

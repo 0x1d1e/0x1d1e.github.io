@@ -56,7 +56,7 @@ export function MobileMenu({ id, links, onClose }: Props) {
       <button
         type="button"
         onClick={onClose}
-        className="self-end font-mono text-sm uppercase"
+        className="-mr-3 self-end px-3 py-3 font-mono text-sm uppercase"
       >
         Close
       </button>

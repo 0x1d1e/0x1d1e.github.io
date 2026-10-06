@@ -8,6 +8,8 @@ export function DocsLayout({ docs, children }: { docs: Doc[]; children: ReactNod
   const { '*': rest = '' } = useParams();
   const current = rest.split('/')[0] ?? '';
   const [query, setQuery] = useState('');
+  // The page tree is always open on wide screens; on small ones it sits behind a toggle.
+  const [treeOpen, setTreeOpen] = useState(false);
   const results = searchDocs(docs, query);
   const groups = groupByProject(docs);
 
@@ -43,7 +45,22 @@ export function DocsLayout({ docs, children }: { docs: Doc[]; children: ReactNod
             ))}
           </ul>
         ) : (
-          <nav className="mt-6 flex flex-col gap-5">
+          <>
+          <button
+            type="button"
+            aria-expanded={treeOpen}
+            aria-controls="docs-tree"
+            onClick={() => setTreeOpen((o) => !o)}
+            className="mt-4 flex w-full items-center justify-between bg-card px-3 py-2 font-mono text-sm text-text-soft ring-1 ring-ring transition-colors duration-150 hover:text-text lg:hidden"
+          >
+            Browse pages
+            <span aria-hidden="true">{treeOpen ? '−' : '+'}</span>
+          </button>
+          <nav
+            id="docs-tree"
+            aria-label="Docs pages"
+            className={`mt-6 flex-col gap-5 ${treeOpen ? 'flex' : 'hidden lg:flex'}`}
+          >
             {[...groups].map(([project, pages]) => (
               <div key={project}>
                 <p className={`font-mono text-sm ${project === current ? 'text-text' : 'text-muted'}`}>
@@ -54,6 +71,7 @@ export function DocsLayout({ docs, children }: { docs: Doc[]; children: ReactNod
                     <li key={d.slug}>
                       <NavLink
                         to={`/docs/${project}/${d.slug}`}
+                        onClick={() => setTreeOpen(false)}
                         className={({ isActive }) =>
                           `-ml-px block border-l py-1 pl-3 text-sm transition-colors duration-150 ${isActive ? 'border-accent text-accent' : 'border-transparent text-text-soft hover:text-text'}`
                         }
@@ -66,6 +84,7 @@ export function DocsLayout({ docs, children }: { docs: Doc[]; children: ReactNod
               </div>
             ))}
           </nav>
+          </>
         )}
       </aside>
       <div className="min-w-0">{children}</div>

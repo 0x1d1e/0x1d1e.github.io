@@ -11,7 +11,7 @@ const N = {
   b: { x: 440, y: 130 },
   c: { x: 440, y: 230 },
 };
-const W = 100;
+const W = 110;
 const H = 40;
 const mid = (n: { x: number; y: number }) => ({
   x: n.x + W / 2,
@@ -101,7 +101,7 @@ export function RouteGraph({ name = 'gateway' }: { name?: string }) {
                 x={N[k].x + W / 2}
                 y={N[k].y + H / 2 + 4}
                 textAnchor="middle"
-                fontSize="12"
+                fontSize="16"
                 className={scene.failed === k ? 'fill-muted' : 'fill-text-soft'}
               >
                 {label}
@@ -116,7 +116,7 @@ export function RouteGraph({ name = 'gateway' }: { name?: string }) {
             key={`x-${step}`}
             x={N[scene.failed].x + W + 14}
             y={mid(N[scene.failed]).y + 5}
-            fontSize="14"
+            fontSize="16"
             className="animate-fade-in fill-text"
             style={{ animationDelay: '1.1s' }}
           >

@@ -24,3 +24,16 @@ test('no horizontal overflow', async ({ page }) => {
   );
   expect(overflow).toBeLessThanOrEqual(0);
 });
+
+test('favicon is declared and served', async ({ page, request }) => {
+  await page.goto('/');
+  for (const sel of [
+    'link[rel="icon"][type="image/svg+xml"]',
+    'link[rel="apple-touch-icon"]',
+  ]) {
+    const href = await page.locator(sel).getAttribute('href');
+    expect(href).toBeTruthy();
+    const res = await request.get(new URL(href!, page.url()).toString());
+    expect(res.ok()).toBe(true);
+  }
+});

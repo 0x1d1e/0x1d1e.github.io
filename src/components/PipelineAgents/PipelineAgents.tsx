@@ -81,9 +81,9 @@ export function PipelineAgents() {
           strokeWidth="1.5"
         />
         <rect
-          x={CX(2) - 50}
+          x={CX(2) - 64}
           y="92"
-          width="100"
+          width="128"
           height="76"
           strokeDasharray="4 4"
           className="fill-none stroke-muted"
@@ -95,9 +95,9 @@ export function PipelineAgents() {
           return (
             <g key={name}>
               <rect
-                x={CX(i) - 28}
+                x={CX(i) - 40}
                 y="108"
-                width="56"
+                width="80"
                 height="44"
                 className={`fill-bg transition-colors duration-300 ${i === 4 && merged ? 'stroke-success' : on ? 'stroke-accent' : 'stroke-ring'}`}
                 strokeWidth="1.5"
@@ -106,7 +106,7 @@ export function PipelineAgents() {
                 x={CX(i)}
                 y="135"
                 textAnchor="middle"
-                fontSize="11"
+                fontSize="15"
                 className={
                   i === 4 && merged ? 'fill-success' : 'fill-text-soft'
                 }
@@ -120,7 +120,7 @@ export function PipelineAgents() {
           x={CX(2)}
           y="188"
           textAnchor="middle"
-          fontSize="10"
+          fontSize="14"
           className="fill-muted"
         >
           sandbox
@@ -156,7 +156,7 @@ export function PipelineAgents() {
           x={CX(s.worker)}
           y="22"
           textAnchor="middle"
-          fontSize="11"
+          fontSize="15"
           className="fill-accent"
         >
           {s.said}

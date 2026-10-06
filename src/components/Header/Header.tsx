@@ -27,7 +27,7 @@ export function Header({ links }: { links: NavLink[] }) {
       </nav>
       <button
         type="button"
-        className="font-mono text-sm uppercase md:hidden"
+        className="-mr-3 px-3 py-3 font-mono text-sm uppercase md:hidden"
         aria-expanded={open}
         aria-controls={MENU_ID}
         onClick={() => setOpen(true)}

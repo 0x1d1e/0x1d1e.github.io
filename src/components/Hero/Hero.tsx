@@ -17,10 +17,10 @@ export function Hero({ headline, subtext, cta }: HeroProps) {
   return (
     <section
       aria-labelledby="hero-title"
-      className="relative flex min-h-svh items-end overflow-hidden"
+      className="relative flex min-h-svh items-end lg:min-h-[calc(100svh-4rem)] overflow-hidden"
     >
       <div aria-hidden="true" className="scrim absolute inset-0" />
-      <div className="relative z-10 grid w-full items-end gap-12 px-6 pb-16 md:px-14 md:pb-24 lg:grid-cols-2">
+      <div className="relative z-10 grid w-full items-end gap-12 px-6 pt-28 pb-16 md:px-14 md:pb-24 lg:grid-cols-2 lg:pt-0">
         <div className="flex max-w-3xl flex-col gap-6">
           <h1 id="hero-title" className="font-display text-headline">
             <PixelWordmark text={headline} />

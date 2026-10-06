@@ -21,7 +21,7 @@ const scan = (t: number, k: number) => clamp((t - k - REST) / (1 - 2 * REST));
 function useWide() {
   const [on, setOn] = useState(false);
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px) and (min-height: 640px)');
+    const mq = window.matchMedia('(min-width: 1024px) and (min-height: 700px)');
     const sync = () => setOn(mq.matches);
     sync();
     mq.addEventListener('change', sync);
@@ -164,7 +164,7 @@ function Deck({ pages }: { pages: StagePage[] }) {
 
 /**
  * Full-screen pages driven by scroll: a scan line sweeps down the screen,
- * revealing the next page above it and leaving the old one below. Small screens and reduced
+ * revealing the next page above it and leaving the old one below. Small or short screens and reduced
  * motion get the same pages as a plain scrolling column.
  */
 export function Stage({ pages }: { pages: StagePage[] }) {

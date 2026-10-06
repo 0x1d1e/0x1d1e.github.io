@@ -72,3 +72,29 @@ test('mobile: home is a normal column with the menu button', async ({
   await expect(page.getByRole('navigation', { name: 'Sections' })).toBeHidden();
   await expect(page.locator('[data-page]')).toHaveCount(5);
 });
+
+test('small screens: the hero clears the fixed header', async ({
+  page,
+}, info) => {
+  test.skip(!['mobile', 'small'].includes(info.project.name), 'phones only');
+  await page.goto('/');
+  await page.waitForTimeout(800);
+  const header = await page.locator('header').boundingBox();
+  const title = await page.getByRole('heading', { level: 1 }).boundingBox();
+  const canvas = await page.locator('#intro h1 canvas').boundingBox();
+  const top = (canvas ?? title)!.y;
+  expect(top).toBeGreaterThanOrEqual(header!.y + 40);
+});
+
+test('touch targets: the menu button and CTAs are at least 44px tall on phones', async ({
+  page,
+}, info) => {
+  test.skip(!['mobile', 'small'].includes(info.project.name), 'phones only');
+  await page.goto('/');
+  const menu = await page.getByRole('button', { name: 'Menu' }).boundingBox();
+  expect(menu!.height).toBeGreaterThanOrEqual(44);
+  for (const name of ['See the projects', 'Browse projects']) {
+    const box = await page.getByRole('link', { name }).boundingBox();
+    expect(box!.height).toBeGreaterThanOrEqual(44);
+  }
+});

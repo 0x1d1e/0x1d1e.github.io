@@ -19,6 +19,11 @@ export default defineConfig({
       name: 'mobile',
       use: { ...devices['Pixel 5'], viewport: { width: 390, height: 844 } },
     },
+    // iPhone SE-class: the narrowest layout we support.
+    {
+      name: 'small',
+      use: { ...devices['Pixel 5'], viewport: { width: 320, height: 568 } },
+    },
     {
       name: 'desktop',
       use: {

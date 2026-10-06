@@ -101,7 +101,7 @@ export function RouteGraph({ name = 'gateway' }: { name?: string }) {
                 x={N[k].x + W / 2}
                 y={N[k].y + H / 2 + 4}
                 textAnchor="middle"
-                fontSize="14"
+                fontSize="16"
                 className={scene.failed === k ? 'fill-muted' : 'fill-text-soft'}
               >
                 {label}

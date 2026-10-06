@@ -94,7 +94,7 @@ export function NeuralNet() {
             x={X[l]! + SIZE / 2}
             y="308"
             textAnchor="middle"
-            fontSize="16"
+            fontSize="18"
             className="fill-muted"
           >
             {t}
@@ -102,7 +102,7 @@ export function NeuralNet() {
         ))}
 
         {/* loss, one point per finished epoch */}
-        <text x="400" y="18" fontSize="16" className="fill-muted">
+        <text x="400" y="18" fontSize="18" className="fill-muted">
           loss
         </text>
         <line x1="400" x2="520" y1="62" y2="62" className="stroke-ring" />

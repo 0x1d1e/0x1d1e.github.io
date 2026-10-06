@@ -3,6 +3,8 @@ import { test } from '@playwright/test';
 // Pixel baselines differ across OS font rendering, so these are captured as CI
 // artifacts for human review rather than diffed against committed images.
 test('full-page screenshot', async ({ page }, info) => {
+  // Reveals fire on scroll; reduced motion renders everything in its final state.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({

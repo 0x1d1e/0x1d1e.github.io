@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { parseFrontmatter } from './frontmatter';
+import { topicIds } from './topics';
 
 export const projectSchema = z.object({
   name: z.string().min(1),
@@ -11,6 +12,11 @@ export const projectSchema = z.object({
   repo: z.url(),
   tags: z.array(z.string()).default([]),
   updated: z.iso.date(),
+  topics: z.array(z.enum(topicIds)).default([]),
+  // Illustration shown on the project's own page (see components/visuals).
+  visual: z.enum(['gateway', 'pipeline', 'island']).optional(),
+  // Supporting repos (plugins, frontends) listed on the project page, not on the landing page.
+  addons: z.array(z.string()).default([]),
 });
 
 export type Project = z.infer<typeof projectSchema>;

@@ -10,27 +10,26 @@ const at = (path: string) =>
     </MemoryRouter>,
   );
 
-test('home shows the kinds of work, not individual projects', () => {
+test('home is one story: intro, what we build, how we work, join in', () => {
   const { container } = at('/');
   expect(
     [...container.querySelectorAll('[data-page]')].map((p) => p.id),
-  ).toEqual(['intro', 'ai', 'agents', 'desktop', 'principles', 'next']);
-  for (const name of [
-    'Between your agents and the models.',
-    'Agents that ship. Humans that approve.',
-    'Software that stays out of the way.',
-    'How we work',
-  ])
-    expect(screen.getByRole('heading', { name })).toBeInTheDocument();
-  for (const n of ['kanade', 'kinetix', 'merro'])
-    expect(screen.queryByText(new RegExp(n, 'i'))).toBeNull();
+  ).toEqual(['intro', 'build', 'principles', 'next']);
+  expect(
+    screen.getByRole('heading', {
+      name: 'Tools for the problems in front of us.',
+    }),
+  ).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Browse projects' })).toHaveAttribute(
+    'href',
+    '/projects',
+  );
 });
 
-test('each kind of work links to its filtered projects', () => {
+test('home does not feature individual projects or focus areas', () => {
   at('/');
-  expect(
-    screen.getByRole('link', { name: 'Projects in Agents and automation' }),
-  ).toHaveAttribute('href', '/projects?topic=agents');
+  for (const n of ['kanade', 'kinetix', 'merro', 'neural', 'tiling'])
+    expect(screen.queryByText(new RegExp(n, 'i'))).toBeNull();
 });
 
 test('about page has the org story', () => {

@@ -1,13 +1,9 @@
-import type { ReactNode } from 'react';
+import { BuildLoop } from '../components/BuildLoop/BuildLoop';
 import { Button } from '../components/Button/Button';
 import { Chapter } from '../components/Chapter/Chapter';
 import { Hero } from '../components/Hero/Hero';
-import { topics, type TopicId } from '../content/topics';
-import { AgentSwarm } from '../components/AgentSwarm/AgentSwarm';
 import { Marquee } from '../components/Marquee/Marquee';
-import { NeuralNet } from '../components/NeuralNet/NeuralNet';
 import { Principles } from '../components/Principles/Principles';
-import { TilingDemo } from '../components/TilingDemo/TilingDemo';
 import { Stage, type StagePage } from '../motion/Stage';
 
 const values = [
@@ -18,14 +14,7 @@ const values = [
   'no roadmap theater',
 ];
 
-// What each kind of work looks like. Illustrations are generic; project-specific ones live on each project's page.
-const visualFor: Record<TopicId, ReactNode> = {
-  ai: <NeuralNet />,
-  agents: <AgentSwarm />,
-  desktop: <TilingDemo />,
-};
-
-// One story, in order: who we are, what kind of work we do, how we work, how to join in.
+// One story, in order: who we are, what we build, how we work, how to join in.
 const pages: StagePage[] = [
   {
     id: 'intro',
@@ -43,21 +32,28 @@ const pages: StagePage[] = [
       </div>
     ),
   },
-  ...topics.map((t, i): StagePage => ({
-    id: t.id,
-    label: t.name,
+  {
+    id: 'build',
+    label: 'What we build',
     node: (
       <Chapter
-        index={String(i + 1).padStart(2, '0')}
-        topic={t.id}
-        name={t.name}
-        title={t.title}
-        blurb={t.blurb}
-        tags={t.tags}
-        visual={visualFor[t.id]}
+        id="build"
+        index="01"
+        label="what we build"
+        title="Tools for the problems in front of us."
+        blurb="We build solutions and tools in tech, and in AI where it helps: gateways, coding agents, developer tools, desktop software. Small, working, and honest about how finished they are."
+        tags={[
+          'developer tools',
+          'AI and LLM',
+          'agents and automation',
+          'Linux desktop',
+          'infrastructure',
+        ]}
+        cta={{ label: 'Browse projects', href: '/projects' }}
+        visual={<BuildLoop />}
       />
     ),
-  })),
+  },
   { id: 'principles', label: 'How we work', node: <Principles /> },
   {
     id: 'next',

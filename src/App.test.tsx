@@ -14,7 +14,7 @@ test('home renders the org name, real projects and footer', () => {
   ).toBeInTheDocument();
   expect(
     screen.getByRole('heading', {
-      name: 'Agents that ship. Humans that approve.',
+      name: 'Tools for the problems in front of us.',
     }),
   ).toBeInTheDocument();
   expect(

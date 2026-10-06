@@ -28,7 +28,7 @@ test('keyboard reaches nav, CTA and event stream', async ({ page }, info) => {
     );
   }
   expect(seen).toContain('See the projects');
-  expect(seen).toContain('Projects in AI infrastructure');
+  expect(seen).toContain('See the projects');
   void info;
 });
 

@@ -6,12 +6,7 @@ test('renders every section', async ({ page }) => {
     page.getByRole('heading', { level: 1, name: '0x1d1e' }),
   ).toBeVisible();
   // Pages overlap on the desktop stage, so check presence rather than visibility.
-  for (const name of [
-    'Between your agents and the models.',
-    'Agents that ship. Humans that approve.',
-    'Software that stays out of the way.',
-    'How we work',
-  ])
+  for (const name of ['Tools for the problems in front of us.', 'How we work'])
     await expect(page.getByRole('heading', { name })).toBeAttached();
   await expect(page.getByRole('navigation', { name: 'Footer' })).toBeAttached();
 });

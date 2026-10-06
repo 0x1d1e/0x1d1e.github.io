@@ -42,13 +42,13 @@ test('side pager jumps between pages and tracks the current one', async ({
     'aria-current',
     'true',
   );
-  await pager.getByRole('link', { name: 'Agents and automation' }).click();
+  await pager.getByRole('link', { name: 'What we build' }).click();
   await expect(
-    pager.getByRole('link', { name: 'Agents and automation' }),
+    pager.getByRole('link', { name: 'What we build' }),
   ).toHaveAttribute('aria-current', 'true');
   await expect(
     page.getByRole('heading', {
-      name: 'Agents that ship. Humans that approve.',
+      name: 'Tools for the problems in front of us.',
     }),
   ).toHaveCSS('opacity', '1');
 });

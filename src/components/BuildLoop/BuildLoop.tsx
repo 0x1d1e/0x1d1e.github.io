@@ -142,7 +142,7 @@ export function BuildLoop() {
             transform: `translate(${target.x - 5 * SCALE}px, ${target.y}px)`,
           }}
         >
-          <g style={{ transform: `scale(${SCALE})` }}>
+          <g data-agent style={{ transform: `scale(${SCALE})` }}>
             <g className={bob}>
               <AgentRects variant="worker" />
             </g>

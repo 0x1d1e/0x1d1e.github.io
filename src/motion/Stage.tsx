@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   type MotionValue,
   motion,
@@ -10,7 +10,38 @@ import {
 } from 'motion/react';
 import { PageDots } from '../components/PageDots/PageDots';
 import { PageActive } from './PageContext';
-import { RUN_END, clamp, scan, typed, typedCommand, wipe } from './stageMath';
+import { drawDissolve, makeCells, type Cells } from './pixelDissolve';
+import {
+  buildScatter,
+  drawScatter,
+  pageTargets,
+  refreshSources,
+  type Scatter,
+  type ScatterStyle,
+} from './logoScatter';
+import { hideLogos, readLogoPoints } from './logoSource';
+import { clearFxCache, drawFx, type FxStyle } from './trainFx';
+import {
+  GROW_END,
+  arrivalClip,
+  drawAgentEat,
+  eatenClip,
+  type AgentSrc,
+} from './agentEat';
+import {
+  RUN_END,
+  type Exit,
+  clamp,
+  dissolve,
+  pageOpacity,
+  scan,
+  scrollOf,
+  stageHeight,
+  toPosition,
+  shownPage,
+  typed,
+  typedCommand,
+} from './stageMath';
 
 export type StagePage = {
   id: string;
@@ -18,6 +49,19 @@ export type StagePage = {
   node: ReactNode;
   /** Shell command "typed" as the stage moves to this page. Defaults to `cd ./<id>`. */
   command?: string;
+  /**
+   * How this page is left. `logo-scatter`: the hero wordmark's pixels move
+   * through 3D and arrange themselves into the next page's text. `agent-eat`:
+   * the page's agent (marked `data-agent`) grows, goes red-eyed and eats the
+   * page. Default: pixel dissolve.
+   */
+  exit?: 'logo-scatter' | 'agent-eat' | 'fx';
+  /** With `exit: 'fx'`: which of the screen-covering effects. Default `denoise`. */
+  fxStyle?: FxStyle;
+  /** With `exit: 'logo-scatter'`: the shape the pixels take on the way. Default `tunnel`. */
+  scatterStyle?: ScatterStyle;
+  /** Scroll length of the transition leaving this page, in viewports. Default 1; longer is slower. */
+  span?: number;
 };
 
 function useWide() {
@@ -38,6 +82,8 @@ function DeckPage({
   p,
   active,
   page,
+  exits,
+  spans,
   jump,
 }: {
   i: number;
@@ -45,32 +91,30 @@ function DeckPage({
   p: MotionValue<number>;
   active: number;
   page: StagePage;
+  exits: Exit[];
+  spans: number[];
   jump: (i: number, smooth: boolean) => void;
 }) {
-  // The command is typed first, then a scan line sweeps down the screen: the
-  // new page is revealed above it, the old one is left below it, drifting down
-  // a little as it is covered.
-  const raw = (k: number, v: number) => scan(v * (n - 1), k);
-  const enter = useTransform(p, (v) => (i === 0 ? 1 : wipe(raw(i - 1, v))));
-  const leave = useTransform(p, (v) => (i === n - 1 ? 0 : wipe(raw(i, v))));
-  const typing = useTransform(p, (v) => (i === n - 1 ? 0 : typed(raw(i, v))));
-  const clipPath = useTransform([enter, leave], ([e = 1, l = 0]: number[]) =>
-    e < 1
-      ? `inset(0 0 ${(1 - e) * 100}% 0)`
-      : l > 0
-        ? `inset(${l * 100}% 0 0 0)`
-        : 'inset(0 0 0 0)',
+  // The command is typed first, then the screen dissolves into pixels: the
+  // old page is on stage until it is fully covered, then the new one.
+  const typing = useTransform(p, (v) => {
+    const t = toPosition(v, spans);
+    const k = clamp(Math.floor(t), 0, n - 2);
+    return i === k ? typed(scan(t, k)) : 0;
+  });
+  const opacity = useTransform([p, typing], ([v = 0, ty = 0]: number[]) =>
+    pageOpacity(toPosition(v, spans), i, n, exits, ty),
   );
-  const y = useTransform(
-    [enter, leave],
-    ([e = 1, l = 0]: number[]) => `${(1 - e) * -6 + l * 6}vh`,
-  );
-  // The page being left dims while its command is typed.
-  const opacity = useTransform(
-    [enter, leave, typing],
-    ([e = 1, l = 0, ty = 0]: number[]) =>
-      clamp(0.35 + 0.65 * e - 0.55 * l - 0.3 * ty),
-  );
+  // The agent eats the old page from the right; the new page wipes in from the left.
+  const clipPath = useTransform(p, (v) => {
+    const t = toPosition(v, spans);
+    const k = clamp(Math.floor(t), 0, n - 2);
+    if (exits[k] !== 'agent-eat') return 'none';
+    const w = dissolve(t, k);
+    if (i === k) return eatenClip(w, window.innerWidth, window.innerHeight);
+    if (i === k + 1) return arrivalClip(w);
+    return 'none';
+  });
 
   return (
     <PageActive.Provider value={active === i}>
@@ -81,9 +125,8 @@ function DeckPage({
         onFocusCapture={() => active !== i && jump(i, false)}
         className="absolute inset-0 flex items-center"
         style={{
-          clipPath,
-          y,
           opacity,
+          clipPath,
           zIndex: active === i ? 2 : 1,
           pointerEvents: active === i ? 'auto' : 'none',
         }}
@@ -97,6 +140,17 @@ function DeckPage({
 function Deck({ pages }: { pages: StagePage[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const n = pages.length;
+  const spans = useMemo(
+    () => pages.slice(0, -1).map((pg) => pg.span ?? 1),
+    [pages],
+  );
+  const exits = useMemo<Exit[]>(
+    () =>
+      pages.map((pg) =>
+        pg.exit === 'fx' ? (`fx-${pg.fxStyle ?? 'denoise'}` as Exit) : pg.exit,
+      ),
+    [pages],
+  );
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start start', 'end end'],
@@ -110,8 +164,8 @@ function Deck({ pages }: { pages: StagePage[] }) {
   // Which transition is under way, and how far along it is.
   const [line, setLine] = useState({ path: pages[0]!.id, text: '' });
   useMotionValueEvent(p, 'change', (v) => {
-    const t = v * (n - 1);
-    setActive(clamp(Math.round(t), 0, n - 1));
+    const t = toPosition(v, spans);
+    setActive(shownPage(t, n));
     const k = clamp(Math.floor(t), 0, n - 2);
     const from = pages[k]!;
     const to = pages[k + 1]!;
@@ -129,27 +183,149 @@ function Deck({ pages }: { pages: StagePage[] }) {
       cur.path === next.path && cur.text === next.text ? cur : next,
     );
   });
-  const scanAmount = (v: number) => {
-    const t = v * (n - 1);
-    return scan(t, clamp(Math.floor(t), 0, n - 2));
-  };
-  const lineTop = useTransform(p, (v) => `${wipe(scanAmount(v)) * 100}%`);
-  const lineOn = useTransform(p, (v) => {
-    const w = wipe(scanAmount(v));
-    return w > 0 && w < 1 ? 1 : 0;
-  });
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const draw = useRef<(v: number) => void>(() => undefined);
+  useMotionValueEvent(p, 'change', (v) => draw.current(v));
+  useEffect(() => {
+    const el = canvas.current;
+    const ctx = el?.getContext('2d');
+    if (!el || !ctx) return;
+    const css = getComputedStyle(document.documentElement);
+    const colors = {
+      bg: css.getPropertyValue('--color-bg').trim() || 'black',
+      accent: css.getPropertyValue('--color-accent').trim() || 'blue',
+    };
+    const danger = css.getPropertyValue('--color-danger').trim() || 'red';
+    const token = (name: string, fallback: string) =>
+      css.getPropertyValue(`--color-${name}`).trim() || fallback;
+    const fxColors = {
+      bg: colors.bg,
+      fg: token('text', 'white'),
+      accent: colors.accent,
+      danger,
+      success: token('success', 'green'),
+      muted: token('muted', 'gray'),
+      chip: token('chip', 'black'),
+      card: token('card', 'black'),
+      ring: token('ring', 'gray'),
+    };
+    const mono = css.getPropertyValue('--font-mono').trim() || 'monospace';
+    const fg = css.getPropertyValue('--color-text').trim() || 'white';
+    let w = 0;
+    let h = 0;
+    let cells: Cells | undefined;
+    let scattering = false;
+    // Where the agent was when it started to grow (read live while it grows).
+    let agent: AgentSrc = { cx: 0, cy: 0, s: 8 };
+    // The logo scatter is built from the live page (wordmark pixels, laid-out text), ahead of time.
+    const scatters = new Map<number, Scatter | null>();
+    const scatterFor = (k: number) => {
+      if (!scatters.has(k)) {
+        const logo = readLogoPoints();
+        const next = document.getElementById(pages[k + 1]!.id);
+        scatters.set(
+          k,
+          logo.length && next
+            ? buildScatter(
+                logo,
+                pageTargets(next, w, h),
+                w,
+                h,
+                pages[k]!.scatterStyle ?? 'tunnel',
+              )
+            : null,
+        );
+      }
+      return scatters.get(k) ?? null;
+    };
+    draw.current = (v) => {
+      const t = toPosition(v, spans);
+      const k = clamp(Math.floor(t), 0, n - 2);
+      const d = dissolve(t, k);
+      if (exits[k] === 'agent-eat') {
+        // The page's agent is drawn big on the canvas for as long as the transition is under way.
+        const el = document
+          .getElementById(pages[k]!.id)
+          ?.querySelector<SVGGraphicsElement>('[data-agent]');
+        if (el) el.style.visibility = d > 0 ? 'hidden' : '';
+        if (d > 0) {
+          const r = el?.getBoundingClientRect();
+          if (r?.width && d <= GROW_END)
+            agent = {
+              cx: r.left + r.width / 2,
+              cy: r.top + r.height / 2,
+              s: r.width / 10,
+            };
+          drawAgentEat(ctx, d, w, h, agent, {
+            fg,
+            accent: colors.accent,
+            bg: colors.bg,
+            danger,
+          });
+        } else ctx.clearRect(0, 0, w, h);
+      } else if (exits[k]?.startsWith('fx-')) {
+        const style = exits[k]!.slice(3) as FxStyle;
+        if (d > 0)
+          drawFx(style, d, {
+            ctx,
+            vw: w,
+            vh: h,
+            colors: fxColors,
+            mono,
+            from: document.getElementById(pages[k]!.id),
+            to: document.getElementById(pages[k + 1]!.id),
+          });
+        else ctx.clearRect(0, 0, w, h);
+      } else if (exits[k] === 'logo-scatter') {
+        // The logos are drawn as particles for as long as the transition is under way.
+        const sc = d > 0 ? scatterFor(k) : null;
+        // As it starts, take the logos' positions as they are now (the bot bobs), so there is no jump.
+        if (sc && !scattering) refreshSources(sc, readLogoPoints());
+        scattering = d > 0;
+        hideLogos(d > 0);
+        if (sc) drawScatter(ctx, sc, d, { fg, accent: colors.accent });
+        else ctx.clearRect(0, 0, w, h);
+      } else if (cells) drawDissolve(ctx, cells, w, h, d, colors);
+    };
+    const size = () => {
+      w = el.clientWidth;
+      h = el.clientHeight;
+      el.width = w;
+      el.height = h;
+      cells = makeCells(w, h);
+      scatters.clear();
+      clearFxCache();
+      draw.current(p.get());
+    };
+    size();
+    const ro = new ResizeObserver(size);
+    ro.observe(el);
+    // Build the scatter while idle, so the first scroll frame does not hitch.
+    const warm = window.setTimeout(() => {
+      pages.forEach((_, k) => exits[k] === 'logo-scatter' && scatterFor(k));
+    }, 1800);
+    return () => {
+      window.clearTimeout(warm);
+      ro.disconnect();
+      draw.current = () => undefined;
+    };
+  }, [n, p, pages, exits, spans]);
 
   function jump(i: number, smooth: boolean) {
     const top =
       (ref.current?.getBoundingClientRect().top ?? 0) + window.scrollY;
     window.scrollTo({
-      top: top + i * window.innerHeight,
+      top: top + scrollOf(i, spans) * window.innerHeight,
       behavior: smooth ? 'smooth' : 'auto',
     });
   }
 
   return (
-    <div ref={ref} className="relative" style={{ height: `${n * 100}svh` }}>
+    <div
+      ref={ref}
+      className="relative"
+      style={{ height: `${stageHeight(spans) * 100}svh` }}
+    >
       <div
         className="sticky top-0 h-svh overflow-hidden"
         style={{ perspective: 1600 }}
@@ -162,13 +338,15 @@ function Deck({ pages }: { pages: StagePage[] }) {
             p={p}
             active={active}
             page={page}
+            exits={exits}
+            spans={spans}
             jump={jump}
           />
         ))}
-        <motion.div
+        <canvas
+          ref={canvas}
           aria-hidden="true"
-          style={{ top: lineTop, opacity: lineOn }}
-          className="pointer-events-none absolute inset-x-0 z-30 h-px bg-accent shadow-[0_0_24px_1px_var(--color-accent)]"
+          className="pointer-events-none absolute inset-0 z-30 h-full w-full"
         />
         {/* The shell: always present, so typing a command reads as using it. */}
         <div
@@ -196,8 +374,8 @@ function Deck({ pages }: { pages: StagePage[] }) {
 
 /**
  * Full-screen pages driven by scroll. Moving on first "types" a shell command
- * (scroll-linked, so it un-types when you scroll back), then a scan line
- * sweeps down the screen, revealing the next page above it. Small or short
+ * (scroll-linked, so it un-types when you scroll back), then the page breaks
+ * into pixels that scatter, and pixels converge to form the next page. Small or short
  * screens and reduced motion get the same pages as a plain scrolling column.
  */
 export function Stage({ pages }: { pages: StagePage[] }) {

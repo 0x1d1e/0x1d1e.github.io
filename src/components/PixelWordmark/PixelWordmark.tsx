@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
+import { addLogoSource } from '../../motion/logoSource';
 import { NO_POINTER, trackPointer } from '../../motion/pointer';
 
 type P = {
@@ -11,7 +12,8 @@ type P = {
   vy: number;
 };
 
-const MAX_SIZE = 190;
+// Grows with the column it sits in, up to this (wide screens get a bigger wordmark).
+const MAX_SIZE = 320;
 const PUSH_RADIUS = 90;
 
 /**
@@ -48,6 +50,20 @@ export function PixelWordmark({ text }: { text: string }) {
     const tracker = reduce ? undefined : trackPointer();
     let w = 0;
     let h = 0;
+    // The page transition scatters this wordmark's pixels: where they are now, and how to hide it.
+    const removeSource = addLogoSource({
+      read: () => {
+        const r = el.getBoundingClientRect();
+        return ps.map((q) => ({
+          x: r.left + q.tx,
+          y: r.top + q.ty,
+          size: step - 1,
+        }));
+      },
+      hide: (hidden) => {
+        el.style.opacity = hidden ? '0' : '';
+      },
+    });
 
     function build() {
       w = box!.clientWidth;
@@ -133,13 +149,17 @@ export function PixelWordmark({ text }: { text: string }) {
       .load(`600 100px ${family}`)
       .catch(() => undefined)
       .then(() => !dead && start());
-    const ro = new ResizeObserver(() => !dead && start());
+    // Only a real width change rebuilds; otherwise the assembled pixels stay put.
+    const ro = new ResizeObserver(
+      () => !dead && box.clientWidth !== w && start(),
+    );
     ro.observe(box);
     return () => {
       dead = true;
       cancelAnimationFrame(raf);
       ro.disconnect();
       tracker?.stop();
+      removeSource();
     };
   }, [text, reduce]);
 

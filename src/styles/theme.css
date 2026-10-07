@@ -12,6 +12,8 @@
   --color-cta-text: #121212;
   --color-accent: #52a8ff;
   --color-success: #62c073;
+  /* The agent's eyes when it goes on a rampage (page transition). */
+  --color-danger: #ff3b3b;
 
   --radius-*: initial;
   --radius-btn: 0;

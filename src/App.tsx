@@ -1,7 +1,8 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Outlet, Route, Routes, useLocation } from 'react-router';
 import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
+import { Intro, shouldPlayIntro } from './components/Intro/Intro';
 import { PixelField } from './components/PixelField/PixelField';
 import { ScrollProgress } from './components/ScrollProgress/ScrollProgress';
 import { PageTransition } from './motion/PageTransition';
@@ -31,6 +32,8 @@ const footerLinks = [
   { label: 'GitHub', href: ORG },
 ];
 
+const noop = () => undefined;
+
 /** Hash links scroll to their target; other navigations start at the top. */
 function ScrollToHash() {
   const { pathname, hash } = useLocation();
@@ -43,8 +46,16 @@ function ScrollToHash() {
 
 function Shell() {
   const { pathname } = useLocation();
+  // Decided once, on the first render: deep links go straight to their page.
+  const [intro, setIntro] = useState(() =>
+    shouldPlayIntro(pathname, window.location.search),
+  );
+  // The page is mounted under the video (real content for crawlers); the
+  // video's wordmark glides down onto the hero's own.
+  const gone = useCallback(() => setIntro(false), []);
   return (
     <>
+      {intro && <Intro onClose={noop} onGone={gone} />}
       <PixelField />
       <ScrollProgress />
       <ScrollToHash />

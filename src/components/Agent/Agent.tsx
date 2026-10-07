@@ -1,7 +1,7 @@
 export type AgentVariant = 'worker' | 'reviewer';
 
 // 10x10 pixel sprites. x = body, e = eye (accent), . = empty.
-const SPRITES: Record<AgentVariant, string[]> = {
+export const SPRITES: Record<AgentVariant, string[]> = {
   worker: [
     '....xx....',
     '....xx....',

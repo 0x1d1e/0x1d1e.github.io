@@ -148,3 +148,45 @@ test('touch: the wordmark scatters under a finger and settles after release', as
   });
   await expect.poll(accent, { timeout: 5000 }).toBe(0);
 });
+
+test('hero: the bot stands on the terminal card, on screen, and overlaps nothing', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const box = async (loc: ReturnType<typeof page.locator>) => {
+    await expect(loc).toBeVisible();
+    return (await loc.boundingBox())!;
+  };
+  const bot = await box(page.locator('[data-hero-bot]'));
+  const card = await box(page.getByRole('figure', { name: /agent loop/ }));
+  const word = await box(page.locator('#hero-title'));
+  const cta = await box(page.getByRole('link', { name: 'See the projects' }));
+  const vw = page.viewportSize()!.width;
+
+  expect(bot.x).toBeGreaterThanOrEqual(0);
+  expect(bot.x + bot.width).toBeLessThanOrEqual(vw);
+  // feet on the card's top edge
+  expect(Math.abs(bot.y + bot.height - card.y)).toBeLessThanOrEqual(3);
+  const meets = (a: typeof bot, b: typeof bot) =>
+    a.x < b.x + b.width &&
+    b.x < a.x + a.width &&
+    a.y < b.y + b.height &&
+    b.y < a.y + a.height;
+  expect(meets(bot, word)).toBe(false);
+  expect(meets(bot, cta)).toBe(false);
+});
+
+test('hero: the wordmark grows with the screen instead of staying small', async ({
+  page,
+}, info) => {
+  test.skip(info.project.name !== 'desktop', 'compares desktop sizes');
+  const width = async (w: number, h: number) => {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto('/');
+    await page.waitForTimeout(800);
+    return (await page.locator('#hero-title').boundingBox())!.width;
+  };
+  const small = await width(1280, 800);
+  const large = await width(1920, 1080);
+  expect(large).toBeGreaterThan(small * 1.15);
+});

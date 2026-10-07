@@ -6,6 +6,8 @@ import { docsByProject } from '../content/docs';
 import { projects } from '../content/projects';
 import { visuals } from '../components/visuals';
 import { Reveal } from '../motion/Reveal';
+import { projectMeta } from '../seo/pageMeta';
+import { useMeta } from '../seo/useMeta';
 import { NotFound } from './NotFound';
 
 const ORG = 'https://github.com/0x1d1e';
@@ -13,6 +15,7 @@ const ORG = 'https://github.com/0x1d1e';
 export default function ProjectDetail() {
   const { name = '' } = useParams();
   const p = projects.find((x) => x.name === name);
+  useMeta(p && projectMeta(p.name, p.summary));
   if (!p) return <NotFound />;
   const pages = docsByProject.get(p.name) ?? [];
   const Visual = p.visual ? visuals[p.visual] : undefined;

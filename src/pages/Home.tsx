@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BuildLoop } from '../components/BuildLoop/BuildLoop';
 import { Button } from '../components/Button/Button';
 import { Chapter } from '../components/Chapter/Chapter';
@@ -20,6 +21,9 @@ const pages: StagePage[] = [
   {
     id: 'intro',
     label: 'Intro',
+    exit: 'logo-scatter',
+    scatterStyle: 'tunnel',
+    span: 3.4, // the 3D scatter gets more scroll, so it plays slower
     node: (
       <div className="relative">
         <Hero
@@ -36,6 +40,8 @@ const pages: StagePage[] = [
   {
     id: 'build',
     label: 'What we build',
+    exit: 'agent-eat',
+    span: 3.2, // the agent needs room to grow and eat
     command: 'cd ./what-we-build',
     node: (
       <Chapter
@@ -59,6 +65,9 @@ const pages: StagePage[] = [
   {
     id: 'research',
     label: 'AI research',
+    exit: 'fx',
+    fxStyle: 'tokens',
+    span: 3, // room for the effect to play
     command: 'cat ai-research.md',
     node: (
       <Chapter
@@ -76,6 +85,9 @@ const pages: StagePage[] = [
   {
     id: 'principles',
     label: 'How we work',
+    exit: 'fx',
+    fxStyle: 'eval',
+    span: 3,
     command: 'less PRINCIPLES.md',
     node: <Principles />,
   },
@@ -109,5 +121,15 @@ const pages: StagePage[] = [
 ];
 
 export function Home() {
+  // The stage is a long scroll: never restore a position in it (refresh, back).
+  // Other pages get the browser's own behaviour back when this one goes.
+  useEffect(() => {
+    const before = history.scrollRestoration;
+    history.scrollRestoration = 'manual';
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    return () => {
+      history.scrollRestoration = before === 'manual' ? 'auto' : before;
+    };
+  }, []);
   return <Stage pages={pages} />;
 }

@@ -37,3 +37,42 @@ test('favicon is declared and served', async ({ page, request }) => {
     expect(res.ok()).toBe(true);
   }
 });
+
+test('link previews: every address is served with its own tags and a preview image', async ({
+  request,
+}) => {
+  const html = async (path: string) => (await request.get(path)).text();
+  const tag = (h: string, key: string) =>
+    new RegExp(`<meta[^>]*${key}[^>]*content="([^"]*)"`).exec(h)?.[1];
+
+  const home = await html('/');
+  expect(tag(home, 'property="og:title"')).toBe(
+    '0x1d1e: software made during idle cycles',
+  );
+  expect(tag(home, 'property="og:image"')).toMatch(/^https:\/\/.+\/og\.png$/);
+  expect(tag(home, 'name="twitter:card"')).toBe('summary_large_image');
+  expect(home).not.toContain('%SITE_URL%');
+
+  // (`vite preview` finds a page's own file at its directory address; real hosts do at both.)
+  const project = await html('/projects/kinetix/');
+  expect(project).toContain('<title>kinetix · 0x1d1e</title>');
+  expect(tag(project, 'property="og:description"')).toMatch(/LLM traffic/);
+  expect(project).toMatch(
+    /rel="canonical" href="https:\/\/[^"]+\/projects\/kinetix"/,
+  );
+
+  const doc = await html('/docs/merro/lifecycle/');
+  expect(doc).toContain('<title>Lifecycle: merro docs · 0x1d1e</title>');
+
+  // the card's image exists and is the size the tags promise
+  const img = await request.get('/og.png');
+  expect(img.ok()).toBe(true);
+  expect(img.headers()['content-type']).toBe('image/png');
+  const png = await img.body();
+  expect(png.readUInt32BE(16)).toBe(1200);
+  expect(png.readUInt32BE(20)).toBe(630);
+
+  const sitemap = await html('/sitemap.xml');
+  expect(sitemap).toContain('/projects/kinetix</loc>');
+  expect((await request.get('/robots.txt')).ok()).toBe(true);
+});

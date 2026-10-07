@@ -4,6 +4,7 @@ import { Cursor } from '../Cursor/Cursor';
 import { Reveal } from '../../motion/Reveal';
 import { useTypewriter } from '../../motion/useTypewriter';
 import { AgentLoop } from './AgentLoop';
+import { HeroBot } from './HeroBot';
 
 export type HeroProps = {
   headline: string;
@@ -21,7 +22,7 @@ export function Hero({ headline, subtext, cta }: HeroProps) {
     >
       <div aria-hidden="true" className="scrim absolute inset-0" />
       <div className="relative z-10 grid w-full items-end gap-12 px-6 pt-28 pb-16 md:px-14 md:pb-24 lg:grid-cols-2 lg:pt-0">
-        <div className="flex max-w-3xl flex-col gap-6">
+        <div className="flex max-w-5xl flex-col gap-6">
           <h1 id="hero-title" className="font-display text-headline">
             <PixelWordmark text={headline} />
           </h1>
@@ -38,9 +39,15 @@ export function Hero({ headline, subtext, cta }: HeroProps) {
             </Button>
           </Reveal>
         </div>
-        <Reveal delay={0.18} className="lg:justify-self-end">
-          <AgentLoop />
-        </Reveal>
+        <div className="flex w-full max-w-md flex-col lg:justify-self-end">
+          {/* The bot stands on the card: its feet on the card's top edge. */}
+          <Reveal delay={0.1} className="-mb-px self-end pr-5 sm:pr-8">
+            <HeroBot />
+          </Reveal>
+          <Reveal delay={0.18}>
+            <AgentLoop />
+          </Reveal>
+        </div>
       </div>
     </section>
   );

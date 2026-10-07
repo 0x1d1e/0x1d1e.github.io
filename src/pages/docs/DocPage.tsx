@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { AppLink } from '../../components/AppLink/AppLink';
 import { Markdown } from '../../components/Markdown/Markdown';
 import { docsByProject, type Doc } from '../../content/docs';
+import { docMeta } from '../../seo/pageMeta';
+import { useMeta } from '../../seo/useMeta';
 
 const EDIT = 'https://github.com/0x1d1e/landing-page/edit/main';
 
@@ -25,6 +27,7 @@ function useActiveHeading(ids: string[]) {
 }
 
 export function DocPage({ doc }: { doc: Doc }) {
+  useMeta(docMeta(doc.project, doc.slug, doc.title, doc.description));
   const siblings = docsByProject.get(doc.project) ?? [];
   const i = siblings.findIndex((d) => d.slug === doc.slug);
   const prev = siblings[i - 1];

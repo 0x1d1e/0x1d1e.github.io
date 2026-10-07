@@ -1,7 +1,10 @@
 import { AppLink } from '../components/AppLink/AppLink';
 import { Cursor } from '../components/Cursor/Cursor';
+import { NOT_FOUND } from '../seo/pageMeta';
+import { useMeta } from '../seo/useMeta';
 
 export function NotFound() {
+  useMeta(NOT_FOUND);
   return (
     <section className="flex min-h-svh flex-col justify-center gap-4 px-6 md:px-14">
       <p aria-hidden="true" className="font-mono text-xs text-muted">

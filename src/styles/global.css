@@ -16,6 +16,11 @@
   }
 }
 
+/* Intro handover (see Intro.tsx): the hero's wordmark stays hidden until the intro's lands on it. */
+html[data-intro='on'] #hero-title canvas {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

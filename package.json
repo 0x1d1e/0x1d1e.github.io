@@ -6,11 +6,12 @@
   "packageManager": "pnpm@12.5.1",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build && node scripts/spa-fallback.mjs",
+    "build": "tsc --noEmit && vite build && node scripts/prerender-meta.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . && prettier --check . && node scripts/check-palette.mjs",
     "format": "prettier --write .",
+    "og": "node scripts/render-og.mjs",
     "test": "vitest run --coverage",
     "e2e": "playwright test",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"

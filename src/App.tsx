@@ -6,6 +6,8 @@ import { Intro, shouldPlayIntro } from './components/Intro/Intro';
 import { PixelField } from './components/PixelField/PixelField';
 import { ScrollProgress } from './components/ScrollProgress/ScrollProgress';
 import { PageTransition } from './motion/PageTransition';
+import { STATIC_META } from './seo/pageMeta';
+import { useMeta } from './seo/useMeta';
 import { About } from './pages/About';
 import { Home } from './pages/Home';
 import { ProjectsPage } from './pages/ProjectsPage';
@@ -46,6 +48,10 @@ function ScrollToHash() {
 
 function Shell() {
   const { pathname } = useLocation();
+  // Fixed pages say who they are here; projects, docs and not-found say it themselves.
+  useMeta(
+    STATIC_META[pathname.length > 1 ? pathname.replace(/\/$/, '') : pathname],
+  );
   // Decided once, on the first render: deep links go straight to their page.
   const [intro, setIntro] = useState(() =>
     shouldPlayIntro(pathname, window.location.search),
